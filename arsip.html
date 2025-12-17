@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARSIP MERAH - Operation Overlord</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=JetBrains+Mono:wght@300;500;800&display=swap');
+
+        :root {
+            --red-alert: #ff0033;
+            --deep-black: #050505;
+            --terminal-green: #00ff41;
+            --scan-line-color: rgba(255, 0, 0, 0.05);
+        }
+
+        body {
+            background-color: var(--deep-black);
+            color: #ececec;
+            font-family: 'JetBrains Mono', monospace;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Scanline Effect */
+        body::before {
+            content: " ";
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(var(--scan-line-color) 50%, rgba(0, 0, 0, 0) 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 4px, 3px 100%;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .grid-bg {
+            background-image: 
+                linear-gradient(rgba(255, 0, 51, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 0, 51, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .panel {
+            background: rgba(10, 10, 10, 0.95);
+            border: 1px solid #330000;
+            box-shadow: inset 0 0 15px rgba(255, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .panel::after {
+            content: "";
+            position: absolute;
+            top: -1px; left: -1px; width: 10px; height: 10px;
+            border-top: 2px solid var(--red-alert); border-left: 2px solid var(--red-alert);
+        }
+
+        .panel-br::after {
+            content: "";
+            position: absolute;
+            bottom: -1px; right: -1px; width: 10px; height: 10px;
+            border-bottom: 2px solid var(--red-alert); border-right: 2px solid var(--red-alert);
+        }
+
+        .glitch-text {
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 3px;
+            animation: glitch 3s infinite;
+        }
+
+        @keyframes glitch {
+            0% { text-shadow: 2px 0 red, -2px 0 blue; transform: skew(0deg); }
+            1% { text-shadow: -5px 0 red, 5px 0 blue; transform: skew(5deg); }
+            2% { text-shadow: 2px 0 red, -2px 0 blue; transform: skew(0deg); }
+            100% { text-shadow: 1px 0 red, -1px 0 blue; }
+        }
+
+        .lyric-line {
+            opacity: 0.2;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 8px;
+            border-left: 2px solid transparent;
+        }
+
+        .lyric-active {
+            opacity: 1;
+            color: var(--red-alert);
+            border-left: 2px solid var(--red-alert);
+            background: rgba(255, 0, 0, 0.05);
+            transform: scale(1.02) translateX(10px);
+        }
+
+        .control-knob {
+            accent-color: var(--red-alert);
+        }
+
+        #textInput {
+            background: #000;
+            color: var(--terminal-green);
+            border: 1px solid #222;
+            resize: none;
+        }
+
+        #textInput:focus {
+            border-color: var(--red-alert);
+            outline: none;
+        }
+
+        .status-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #300; }
+    </style>
+</head>
+<body class="grid-bg flex items-center justify-center p-4">
+    <div class="max-w-7xl w-full h-[90vh] flex flex-col gap-4">
+        
+        <!-- TOP HEADER -->
+        <header class="flex justify-between items-center px-4 py-2 border-b border-zinc-800">
+            <div class="flex items-center gap-3">
+                <div class="bg-red-600 text-black px-2 py-0.5 font-black text-xs">DEPT OF DEFENSE</div>
+                <h1 class="glitch-text text-xl text-white">ARSIP MERAH // OVERLORD</h1>
+            </div>
+            <div class="flex items-center gap-6 text-[10px] text-zinc-500 font-bold tracking-widest">
+                <div class="flex items-center gap-2">
+                    <div id="signal-dot" class="status-dot bg-green-500 animate-pulse"></div>
+                    <span>SIGNAL: STABLE</span>
+                </div>
+                <div id="clock">00:00:00</div>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT -->
+        <main class="grid grid-cols-12 gap-4 flex-grow overflow-hidden">
+            
+            <!-- LEFT PANEL: INPUT -->
+            <section class="col-span-12 lg:col-span-4 flex flex-col gap-4">
+                <div class="panel p-4 flex-grow flex flex-col">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-[10px] text-zinc-500 uppercase font-bold">Data Log Input</span>
+                        <span id="charCount" class="text-[10px] text-red-800">0 BYTE</span>
+                    </div>
+                    <textarea id="textInput" class="w-full flex-grow p-4 text-xs font-mono" placeholder="Masukkan lirik atau dokumen intelijen..."></textarea>
+                    
+                    <div class="mt-4 space-y-3">
+                        <div class="flex justify-between items-center text-[10px] text-zinc-400">
+                            <span>PITCH / SPEED CONTROL</span>
+                            <span id="speedVal">1.0x</span>
+                        </div>
+                        <input type="range" id="speedSlider" min="0.5" max="1.5" step="0.1" value="1.0" class="w-full control-knob">
+                        
+                        <button id="processBtn" class="w-full bg-zinc-900 hover:bg-red-900 text-white py-3 border border-zinc-700 transition-all font-bold text-xs flex items-center justify-center gap-2 uppercase tracking-widest">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                            Sintesis Sinyal
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CENTER PANEL: MONITOR -->
+            <section class="col-span-12 lg:col-span-5 flex flex-col gap-4">
+                <div class="panel p-4 flex-grow overflow-hidden flex flex-col relative">
+                    <div class="text-[10px] text-zinc-500 mb-4 flex justify-between uppercase font-bold">
+                        <span>Voice Log Transcript</span>
+                        <span id="intercept-status" class="text-zinc-600 tracking-tighter">Standby...</span>
+                    </div>
+                    <div id="lyricView" class="flex-grow overflow-y-auto pr-4 space-y-2">
+                        <p class="text-zinc-800 italic text-center mt-40">Awaiting intelligence data...</p>
+                    </div>
+                    
+                    <div id="loader" class="absolute inset-0 bg-black/80 hidden flex items-center justify-center z-50">
+                        <div class="text-center">
+                            <div class="w-12 h-1 border-2 border-red-600 animate-ping mb-4"></div>
+                            <div class="text-[10px] tracking-[0.3em] font-black uppercase text-red-600">Encoding Signal...</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: ANALYTICS -->
+            <section class="col-span-12 lg:col-span-3 flex flex-col gap-4">
+                <div class="panel p-4 h-1/2 flex flex-col">
+                    <span class="text-[10px] text-zinc-500 uppercase mb-4 font-bold">Waveform Analysis</span>
+                    <canvas id="osc" class="flex-grow bg-black border border-zinc-900"></canvas>
+                </div>
+                <div class="panel p-4 h-1/2 flex flex-col">
+                    <span class="text-[10px] text-zinc-500 uppercase mb-4 font-bold">System Console</span>
+                    <div id="consoleLog" class="text-[9px] text-zinc-600 font-mono flex-grow overflow-y-auto space-y-1">
+                        <div>> SYSTEM V6.0 ONLINE...</div>
+                        <div>> SECURE NODE ESTABLISHED.</div>
+                    </div>
+                    <button id="downloadBtn" disabled class="mt-2 text-[9px] text-zinc-500 hover:text-white flex items-center gap-2 border-t border-zinc-800 pt-2 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        DOWNLOAD LOG (.WAV)
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- FOOTER CONTROLS -->
+        <footer class="panel p-4 panel-br">
+            <div class="flex flex-col md:flex-row gap-6 items-center">
+                <button id="playBtn" disabled class="p-4 bg-zinc-800 rounded-full hover:bg-red-600 disabled:opacity-30 disabled:hover:bg-zinc-800 transition-all text-white shadow-lg">
+                    <svg id="playIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                </button>
+                <div class="flex-grow w-full">
+                    <div class="flex justify-between text-[10px] text-zinc-500 mb-1 font-bold">
+                        <span id="timeCur">00:00</span>
+                        <span id="timeDur">00:00</span>
+                    </div>
+                    <div class="h-1 bg-zinc-900 relative">
+                        <div id="prog" class="absolute top-0 left-0 h-full bg-red-600 shadow-[0_0_10px_#ff0000]" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const apiKey = "";
+        let audioCtx, audioBuf, src, analyser, animFrame, audioBlobUrl;
+        let isPlaying = false, startTime = 0, pausedAt = 0, currentLines = [];
+
+        const ui = {
+            input: document.getElementById('textInput'),
+            btnProcess: document.getElementById('processBtn'),
+            btnPlay: document.getElementById('playBtn'),
+            btnDownload: document.getElementById('downloadBtn'),
+            lyricView: document.getElementById('lyricView'),
+            console: document.getElementById('consoleLog'),
+            prog: document.getElementById('prog'),
+            loader: document.getElementById('loader'),
+            speedSlider: document.getElementById('speedSlider'),
+            speedVal: document.getElementById('speedVal'),
+            interceptStatus: document.getElementById('intercept-status')
+        };
+
+        ui.speedSlider.oninput = () => ui.speedVal.innerText = ui.speedSlider.value + 'x';
+        ui.input.oninput = () => document.getElementById('charCount').innerText = ui.input.value.length + ' BYTE';
+
+        async function synthesize() {
+            const text = ui.input.value.trim();
+            if (!text) return pushLog("ERR: INPUT DATA VOID.");
+
+            stopPlay();
+            ui.loader.classList.remove('hidden');
+            ui.btnProcess.disabled = true;
+            ui.interceptStatus.innerText = "Processing...";
+            ui.interceptStatus.className = "text-yellow-500 animate-pulse";
+            pushLog("> ANALYZING TEXT STRUCTURE...");
+            
+            currentLines = text.split('\n').filter(l => l.trim());
+            ui.lyricView.innerHTML = currentLines.map((t, i) => `<div class="lyric-line text-sm" id="line-${i}">${t}</div>`).join('');
+
+            const prompt = `Say in a deep, cold, authoritative male secret agent voice, very slow and dramatic. Read this report: ${text}`;
+            
+            // Retry logic with exponential backoff
+            const fetchWithRetry = async (url, options, retries = 5, backoff = 1000) => {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return await response.json();
+                } catch (err) {
+                    if (retries > 0) {
+                        await new Promise(r => setTimeout(r, backoff));
+                        return fetchWithRetry(url, options, retries - 1, backoff * 2);
+                    }
+                    throw err;
+                }
+            };
+
+            try {
+                const data = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: {
+                            responseModalities: ["AUDIO"],
+                            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Charon" } } }
+                        }
+                    })
+                });
+
+                if (!data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data) {
+                    throw new Error("Invalid API response structure");
+                }
+
+                const b64 = data.candidates[0].content.parts[0].inlineData.data;
+                const blob = b64ToWav(b64, 24000);
+                
+                if (audioBlobUrl) URL.revokeObjectURL(audioBlobUrl);
+                audioBlobUrl = URL.createObjectURL(blob);
+                
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                audioBuf = await audioCtx.decodeAudioData(await blob.arrayBuffer());
+
+                ui.loader.classList.add('hidden');
+                ui.btnProcess.disabled = false;
+                ui.btnPlay.disabled = false;
+                ui.btnDownload.disabled = false;
+                ui.interceptStatus.innerText = "Captured";
+                ui.interceptStatus.className = "text-red-600 font-bold uppercase";
+                pushLog("> SYNTHESIS COMPLETE. READY FOR OPS.");
+                
+                pausedAt = 0;
+                startPlay();
+            } catch (err) {
+                ui.loader.classList.add('hidden');
+                ui.btnProcess.disabled = false;
+                ui.interceptStatus.innerText = "Failed";
+                ui.interceptStatus.className = "text-red-800";
+                pushLog("ERR: SIGNAL INTERFERENCE. CHECK CONNECTION.");
+                console.error("Synthesize error:", err);
+            }
+        }
+
+        function b64ToWav(b64, sr) {
+            const bin = atob(b64);
+            const bytes = new Int16Array(bin.length / 2);
+            for (let i = 0; i < bin.length; i += 2) bytes[i/2] = (bin.charCodeAt(i+1) << 8) | bin.charCodeAt(i);
+            const header = new ArrayBuffer(44);
+            const d = new DataView(header);
+            const s = (o, str) => { for(let i=0;i<str.length;i++) d.setUint8(o+i, str.charCodeAt(i)); };
+            s(0, 'RIFF'); d.setUint32(4, 32 + bytes.length*2, true); s(8, 'WAVE');
+            s(12, 'fmt '); d.setUint32(16, 16, true); d.setUint16(20, 1, true);
+            d.setUint16(22, 1, true); d.setUint32(24, sr, true); d.setUint32(28, sr*2, true);
+            d.setUint16(32, 2, true); d.setUint16(34, 16, true); s(36, 'data');
+            d.setUint32(40, bytes.length*2, true);
+            return new Blob([header, bytes], {type: 'audio/wav'});
+        }
+
+        function startPlay() {
+            if (isPlaying || !audioBuf) return;
+            src = audioCtx.createBufferSource();
+            src.buffer = audioBuf;
+            src.playbackRate.value = parseFloat(ui.speedSlider.value);
+            analyser = audioCtx.createAnalyser();
+            src.connect(analyser); analyser.connect(audioCtx.destination);
+            
+            src.start(0, pausedAt);
+            startTime = audioCtx.currentTime - (pausedAt / src.playbackRate.value);
+            isPlaying = true;
+            ui.btnPlay.innerHTML = `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+            render();
+            pushLog("> PLAYBACK INITIATED...");
+            ui.interceptStatus.innerText = "Listening...";
+        }
+
+        function stopPlay() {
+            if (!isPlaying) return;
+            if (src) {
+                try { src.stop(); } catch(e) {}
+            }
+            pausedAt = (audioCtx.currentTime - startTime) * (src ? src.playbackRate.value : 1);
+            isPlaying = false;
+            ui.btnPlay.innerHTML = `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+            cancelAnimationFrame(animFrame);
+            ui.interceptStatus.innerText = "Paused";
+        }
+
+        function render() {
+            if (!isPlaying) return;
+            const now = audioCtx.currentTime;
+            const currentRate = src ? src.playbackRate.value : 1;
+            const dur = audioBuf.duration / currentRate;
+            const elapsed = now - startTime;
+            const pct = Math.min((elapsed / dur) * 100, 100);
+
+            ui.prog.style.width = pct + '%';
+            document.getElementById('timeCur').innerText = fmtTime(elapsed);
+            document.getElementById('timeDur').innerText = fmtTime(dur);
+
+            // Sync Lyrics
+            const idx = Math.floor((elapsed / dur) * currentLines.length);
+            document.querySelectorAll('.lyric-line').forEach((el, i) => {
+                const isActive = i === idx;
+                el.classList.toggle('lyric-active', isActive);
+                if (isActive) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+
+            // Draw Osc
+            const canvas = document.getElementById('osc');
+            const ctx = canvas.getContext('2d');
+            const data = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteTimeDomainData(data);
+            ctx.fillStyle = '#000'; ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.lineWidth = 2; ctx.strokeStyle = '#ff0033'; ctx.beginPath();
+            const slice = canvas.width / data.length; let x = 0;
+            for(let i=0;i<data.length;i++) {
+                const v = data[i]/128.0; const y = v * canvas.height/2;
+                if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); x+=slice;
+            }
+            ctx.lineTo(canvas.width, canvas.height/2); ctx.stroke();
+
+            if (elapsed >= dur) {
+                stopPlay();
+                pausedAt = 0;
+                ui.prog.style.width = '100%';
+                pushLog("> END OF TRANSMISSION.");
+            } else {
+                animFrame = requestAnimationFrame(render);
+            }
+        }
+
+        function fmtTime(s) {
+            const m = Math.floor(Math.max(0, s)/60); 
+            const sc = Math.floor(Math.max(0, s)%60);
+            return `${m}:${sc < 10 ? '0' : ''}${sc}`;
+        }
+
+        function pushLog(msg) {
+            const d = document.createElement('div');
+            d.innerText = msg;
+            ui.console.appendChild(d);
+            ui.console.scrollTop = ui.console.scrollHeight;
+        }
+
+        ui.btnProcess.onclick = synthesize;
+        ui.btnPlay.onclick = () => isPlaying ? stopPlay() : startPlay();
+        ui.btnDownload.onclick = () => {
+            if (!audioBlobUrl) return;
+            const a = document.createElement('a'); a.href = audioBlobUrl;
+            a.download = "Arsip_Merah_Log.wav"; a.click();
+        };
+
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+        }, 1000);
+
+    </script>
+</body>
+</html>
