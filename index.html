@@ -3,174 +3,296 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARSIP - MODE DEWA v9.1 (Dynamic UI)</title>
+    <title>ARSIP - MODE DEWA v10.0 (Ultimate Interface)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;500;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;500;800&family=Orbitron:wght@400;700;900&display=swap');
 
         :root {
             --red-primary: #ff003c;
-            --bg-black: #020202;
+            --red-glow: rgba(255, 0, 60, 0.6);
+            --bg-black: #050505;
+            --panel-bg: rgba(15, 15, 15, 0.85);
         }
 
         body {
             background-color: var(--bg-black);
-            color: #d1d1d1;
+            color: #e0e0e0;
             font-family: 'JetBrains Mono', monospace;
             overflow: hidden;
             height: 100vh;
             display: flex;
             flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(40, 0, 10, 0.3) 0%, transparent 70%),
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 100%, 100% 4px, 4px 100%;
         }
 
-        body::before {
+        /* Scanline Effect */
+        body::after {
             content: "";
             position: fixed;
-            inset: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-            background-size: 100% 4px, 4px 100%;
-            z-index: 100;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 0%, rgba(255, 0, 60, 0.05) 50%, rgba(18, 16, 16, 0) 100%);
+            background-size: 100% 200%;
+            animation: scanline 8s linear infinite;
             pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes scanline {
+            0% { background-position: 0 -100%; }
+            100% { background-position: 0 100%; }
         }
 
         .cyber-panel {
-            background: rgba(10, 10, 10, 0.9);
-            border: 1px solid rgba(255, 0, 60, 0.15);
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 0, 60, 0.3);
             position: relative;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
         }
 
-        .corner {
+        .corner-accent {
             position: absolute;
-            width: 10px; height: 10px;
+            width: 20px;
+            height: 20px;
             border: 2px solid var(--red-primary);
-            z-index: 10;
         }
-        .c-tl { top: -2px; left: -2px; border-right: 0; border-bottom: 0; }
-        .c-tr { top: -2px; right: -2px; border-left: 0; border-bottom: 0; }
-        .c-bl { bottom: -2px; left: -2px; border-right: 0; border-top: 0; }
-        .c-br { bottom: -2px; right: -2px; border-left: 0; border-top: 0; }
 
-        .glitch-text {
+        .glitch-header {
+            font-family: 'Orbitron', sans-serif;
             text-transform: uppercase;
             font-weight: 900;
-            letter-spacing: 4px;
+            letter-spacing: 6px;
             color: #fff;
-            text-shadow: 2px 2px var(--red-primary);
+            text-shadow: 3px 3px var(--red-primary), -1px -1px #0ff;
+            animation: glitch-vibrate 0.3s infinite;
+        }
+
+        @keyframes glitch-vibrate {
+            0% { transform: translate(0); }
+            20% { transform: translate(-1px, 1px); }
+            40% { transform: translate(-1px, -1px); }
+            60% { transform: translate(1px, 1px); }
+            80% { transform: translate(1px, -1px); }
+            100% { transform: translate(0); }
         }
 
         .lyric-item {
-            border-left: 2px solid #1a1a1a;
-            padding: 8px 15px;
-            transition: all 0.3s ease;
-            opacity: 0.2;
+            border-left: 3px solid #222;
+            padding: 12px 20px;
+            margin-bottom: 8px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(255, 255, 255, 0.02);
+            font-size: 0.8rem;
         }
 
         .lyric-item.active {
             opacity: 1;
             border-color: var(--red-primary);
-            background: linear-gradient(90deg, rgba(255, 0, 60, 0.15), transparent);
-            transform: translateX(8px);
+            background: linear-gradient(90deg, rgba(255, 0, 60, 0.2), transparent);
+            transform: translateX(15px) scale(1.02);
             color: #fff;
+            box-shadow: -10px 0 20px rgba(255, 0, 60, 0.2);
         }
 
-        .console-line::before {
-            content: ">> ";
-            color: var(--red-primary);
-        }
-
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: var(--red-primary); }
-
-        .btn-glow:hover {
-            box-shadow: 0 0 15px var(--red-primary);
-            background: var(--red-primary);
+        .btn-main {
+            background: linear-gradient(45deg, #440000, #ff003c);
             color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px var(--red-glow);
+            filter: brightness(1.2);
+        }
+
+        .btn-main::after {
+            content: "";
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            background: #222;
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px; height: 15px;
+            background: var(--red-primary);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--red-primary);
+        }
+
+        .status-pulse {
+            width: 8px; height: 8px;
+            background: var(--red-primary);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            box-shadow: 0 0 10px var(--red-primary);
+        }
+
+        .bars-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            height: 100%;
+        }
+
+        .v-bar {
+            flex: 1;
+            background: var(--red-primary);
+            min-height: 2px;
+            transition: height 0.05s ease;
         }
     </style>
 </head>
-<body class="p-4 md:p-6">
+<body class="p-4 md:p-8">
 
-    <header class="flex justify-between items-end mb-6 border-b border-red-900/30 pb-4">
+    <!-- Header Section -->
+    <header class="flex justify-between items-start mb-8 relative z-10">
         <div>
-            <div class="flex items-center gap-3 mb-2">
-                <span class="text-[9px] px-2 py-1 border border-green-500 text-green-500 animate-pulse">OFFLINE_ENGINE_ACTIVE</span>
-                <span id="api-status" class="text-[9px] px-2 py-1 border border-blue-500 text-blue-500">SYSTEM: NATIVE_VOICE</span>
+            <div class="flex items-center gap-4 mb-3">
+                <div class="flex items-center bg-red-950/40 border border-red-500/50 px-3 py-1 rounded-sm">
+                    <span class="status-pulse animate-ping"></span>
+                    <span class="text-[10px] font-bold text-red-500 tracking-[0.2em]">SYSTEM</span>
+                </div>
+                <div class="text-[10px] text-blue-400 font-bold tracking-widest border border-blue-500/30 px-3 py-1">
+                    PROTOCOL v10.0
+                </div>
             </div>
-            <h1 class="glitch-text text-xl md:text-3xl">ARSIP<span class="text-zinc-500 text-xs md:text-sm font-light ml-3 italic">v9.1//DYNAMIC</span></h1>
+            <h1 class="glitch-header text-2xl md:text-5xl">ARSIP NEURAL</h1>
+            <p class="text-zinc-500 text-[10px] mt-2 font-bold tracking-[0.4em]">DECRYPTING HUMAN SPEECH PATTERNS</p>
         </div>
-        <div class="text-right font-mono text-[10px] text-zinc-500">
-            <div id="clock" class="text-red-500 font-bold">00:00:00</div>
+        <div class="text-right">
+            <div id="clock" class="font-black text-3xl md:text-5xl text-white/10 italic">00:00:00</div>
+            <div class="text-red-500 text-[10px] font-bold mt-1 tracking-widest uppercase">Global Time Node</div>
         </div>
     </header>
 
-    <main class="grid grid-cols-12 gap-4 flex-grow overflow-hidden">
+    <main class="grid grid-cols-12 gap-6 flex-grow overflow-hidden relative z-10">
         
-        <section class="col-span-12 lg:col-span-4 flex flex-col gap-4 overflow-hidden">
-            <div class="cyber-panel p-5 flex flex-col h-full overflow-hidden">
-                <div class="c-tl corner"></div><div class="c-tr corner"></div>
-                <div class="c-bl corner"></div><div class="c-br corner"></div>
-
-                <label class="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">Input Pesan</label>
-                <textarea id="textInput" class="flex-grow bg-black/40 border border-zinc-800 p-4 text-sm focus:border-red-600 outline-none text-red-400 font-mono resize-none" placeholder="Ketik sesuatu..."></textarea>
+        <!-- Input Panel -->
+        <section class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+            <div class="cyber-panel p-6 flex flex-col h-full overflow-hidden">
+                <div class="absolute top-0 left-0 w-8 h-1 bg-red-500"></div>
+                <div class="absolute top-0 left-0 w-1 h-8 bg-red-500"></div>
                 
-                <div class="grid grid-cols-2 gap-4 mt-4">
-                    <div class="space-y-1">
-                        <label class="text-[9px] uppercase text-zinc-600">Pilih Suara</label>
-                        <select id="voiceSelect" class="w-full bg-zinc-900 border border-zinc-800 text-[10px] p-2 outline-none text-zinc-300">
+                <h2 class="text-[11px] font-black text-red-500 mb-4 flex items-center gap-2">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    DATA INPUT STREAM
+                </h2>
+
+                <textarea id="textInput" class="flex-grow bg-white/5 border border-white/10 p-5 text-sm focus:border-red-500/50 outline-none text-red-100 font-mono resize-none leading-relaxed transition-all placeholder:opacity-20" placeholder="Masukkan transmisi teks di sini..."></textarea>
+                
+                <div class="space-y-6 mt-6 bg-black/40 p-4 border border-white/5">
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <label class="text-[9px] font-bold text-zinc-500 uppercase">Neural Voice Output</label>
+                            <span class="text-[9px] text-red-500 font-bold">READY</span>
+                        </div>
+                        <select id="voiceSelect" class="w-full bg-zinc-900 border border-zinc-800 text-[11px] p-3 outline-none text-white font-bold cursor-pointer hover:border-red-500/50 transition-colors">
                         </select>
                     </div>
-                    <div class="space-y-1">
-                        <label class="text-[9px] uppercase text-zinc-600">Speed: <span id="speedVal">1.0x</span></label>
-                        <input type="range" id="speedSlider" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full accent-red-600">
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <label class="text-[9px] font-bold text-zinc-500 uppercase">Synthesis Speed</label>
+                            <span id="speedVal" class="text-[9px] text-white font-bold bg-red-600 px-2 py-0.5">1.0x</span>
+                        </div>
+                        <input type="range" id="speedSlider" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full">
                     </div>
                 </div>
 
-                <button id="processBtn" class="mt-4 w-full bg-red-950/10 border border-red-600/50 hover:bg-red-600 hover:text-white py-3 font-black text-xs transition-all uppercase tracking-widest">
-                    MULAI SINTESIS
+                <button id="processBtn" class="btn-main mt-6 w-full py-4 text-sm rounded-sm">
+                    SINTESIS SEKARANG
                 </button>
             </div>
         </section>
 
-        <section class="col-span-12 lg:col-span-5 flex flex-col gap-4 overflow-hidden">
-            <div class="cyber-panel p-5 flex-grow overflow-hidden flex flex-col">
-                <div class="c-tl corner"></div><div class="c-tr corner"></div>
-                <div class="c-bl corner"></div><div class="c-br corner"></div>
+        <!-- Visualization Panel -->
+        <section class="col-span-12 lg:col-span-5 flex flex-col gap-6">
+            <div class="cyber-panel p-6 flex-grow flex flex-col overflow-hidden">
+                <div class="absolute top-0 right-0 w-8 h-1 bg-red-500"></div>
+                <div class="absolute top-0 right-0 w-1 h-8 bg-red-500"></div>
+                
+                <h2 class="text-[11px] font-black text-red-500 mb-4 flex items-center gap-2">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
+                    LYRIC SYNC MONITOR
+                </h2>
 
-                <div id="lyricView" class="flex-grow overflow-y-auto space-y-2 pr-2">
-                    <div class="h-full flex flex-col items-center justify-center opacity-20 text-center">
-                        <span class="text-[10px] uppercase tracking-widest">Siap Menerima Data</span>
+                <div id="lyricView" class="flex-grow overflow-y-auto space-y-3 pr-4 custom-scroll">
+                    <div class="h-full flex flex-col items-center justify-center text-center opacity-30">
+                        <div class="w-16 h-16 border-t-2 border-red-500 rounded-full animate-spin mb-4"></div>
+                        <span class="text-[10px] uppercase font-bold tracking-[0.3em]">Menunggu Inisialisasi...</span>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="col-span-12 lg:col-span-3 flex flex-col gap-4 overflow-hidden">
-            <div class="cyber-panel p-4 h-1/2 flex flex-col">
-                <canvas id="osc" class="w-full h-full bg-black/40 border border-zinc-900"></canvas>
+        <!-- Analytics Panel -->
+        <section class="col-span-12 lg:col-span-3 flex flex-col gap-6">
+            <div class="cyber-panel p-5 h-[40%] flex flex-col">
+                <h2 class="text-[10px] font-black text-zinc-500 mb-3 uppercase tracking-tighter">Waveform Analyzer</h2>
+                <div class="flex-grow relative bg-black/40 border border-white/5 p-2">
+                    <canvas id="osc" class="w-full h-full"></canvas>
+                </div>
             </div>
-            <div class="cyber-panel p-4 h-1/2 flex flex-col overflow-hidden">
-                <div id="consoleLog" class="flex-grow text-[9px] font-mono text-zinc-500 space-y-1 overflow-y-auto">
-                    <div class="console-line">Sistem NATIVE aktif.</div>
+            <div class="cyber-panel p-5 h-[60%] flex flex-col overflow-hidden">
+                <h2 class="text-[10px] font-black text-zinc-500 mb-3 uppercase tracking-tighter">System Diagnostic</h2>
+                <div id="consoleLog" class="flex-grow text-[10px] font-mono text-zinc-400 space-y-2 overflow-y-auto pr-2">
+                    <div class="console-line text-green-500">✓ Sistem Neural Ready.</div>
+                    <div class="console-line text-blue-500">✓ Mode Dewa diaktifkan.</div>
+                    <div class="console-line">✓ Menunggu input transmisi...</div>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer class="mt-6 cyber-panel p-5 flex items-center gap-6">
-        <button id="mainActionBtn" class="p-4 border border-red-600 text-red-600 rounded-full btn-glow transition-all">
-            <svg id="btnIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <!-- Play Icon Default -->
+    <!-- Footer Controls -->
+    <footer class="mt-8 flex items-center gap-8 bg-zinc-900/30 p-6 border border-white/10 relative z-10">
+        <button id="mainActionBtn" class="group relative w-16 h-16 flex items-center justify-center bg-red-600 rounded-full hover:scale-110 transition-all duration-300 shadow-[0_0_20px_rgba(255,0,60,0.4)]">
+            <div class="absolute inset-0 rounded-full border-2 border-red-400 animate-ping opacity-20"></div>
+            <svg id="btnIcon" class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z"/>
             </svg>
         </button>
+        
         <div class="flex-grow">
-            <div class="text-[10px] text-zinc-500 uppercase tracking-widest mb-1 font-bold">
-                Status: <span id="statusLabel" class="text-red-500">IDLE</span>
+            <div class="flex justify-between items-end mb-3">
+                <div>
+                    <span class="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Global Status:</span>
+                    <span id="statusLabel" class="text-[11px] text-red-500 font-black ml-2 tracking-widest">STANDBY</span>
+                </div>
+                <div class="text-[10px] font-mono text-zinc-500">BUFFER_LOAD: 100%</div>
             </div>
-            <div class="h-1 bg-zinc-900 rounded-full overflow-hidden">
-                <div id="progressBar" class="h-full bg-red-600 w-0 transition-all duration-300"></div>
+            <div class="h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                <div id="progressBar" class="h-full bg-gradient-to-r from-red-900 to-red-500 w-0 shadow-[0_0_15px_rgba(255,0,60,0.8)] transition-all"></div>
             </div>
         </div>
     </footer>
@@ -204,7 +326,7 @@
         function populateVoices() {
             voices = synth.getVoices();
             ui.voiceSelect.innerHTML = voices
-                .map((v, i) => `<option value="${i}">${v.name} (${v.lang})</option>`)
+                .map((v, i) => `<option value="${i}">${v.name.toUpperCase()} [${v.lang}]</option>`)
                 .join('');
         }
 
@@ -218,7 +340,7 @@
         function pushLog(msg, color = "") {
             const d = document.createElement('div');
             d.className = "console-line " + color;
-            d.innerText = msg;
+            d.innerHTML = `<span class="opacity-30 mr-2">[${new Date().toLocaleTimeString()}]</span> ${msg}`;
             ui.console.appendChild(d);
             ui.console.scrollTop = ui.console.scrollHeight;
         }
@@ -227,12 +349,12 @@
             isSpeaking = speaking;
             if (speaking) {
                 ui.btnIcon.innerHTML = ICONS.stop;
-                ui.statusLabel.innerText = "SPEAKING";
+                ui.statusLabel.innerText = "TRANSMITTING...";
                 ui.statusLabel.classList.add('animate-pulse');
                 drawVisualizer();
             } else {
                 ui.btnIcon.innerHTML = ICONS.play;
-                ui.statusLabel.innerText = "IDLE";
+                ui.statusLabel.innerText = "STANDBY";
                 ui.statusLabel.classList.remove('animate-pulse');
                 ui.progressBar.style.width = '0%';
                 if (animationId) cancelAnimationFrame(animationId);
@@ -255,29 +377,28 @@
             }
 
             const text = ui.input.value.trim();
-            if (!text) return pushLog("ERR: INPUT KOSONG");
+            if (!text) return pushLog("ERR: BUFFER KOSONG", "text-red-500");
 
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.voice = voices[ui.voiceSelect.value];
             utterance.rate = parseFloat(ui.speedSlider.value);
 
             const lines = text.split('\n').filter(l => l.trim());
-            ui.lyricView.innerHTML = lines.map((t, i) => `<div class="lyric-item text-xs" id="line-${i}">${t}</div>`).join('');
+            ui.lyricView.innerHTML = lines.map((t, i) => `
+                <div class="lyric-item group" id="line-${i}">
+                    <div class="text-[9px] text-zinc-600 mb-1 font-black">SEGMENT_0${i+1}</div>
+                    <div class="text-white tracking-wide">${t}</div>
+                </div>`).join('');
 
             utterance.onstart = () => {
                 updateUIState(true);
-                pushLog("> Memulai output suara.");
+                pushLog("PROSES SINTESIS BERHASIL.");
             };
 
             utterance.onend = () => {
                 updateUIState(false);
-                pushLog("> Selesai.");
+                pushLog("TRANSMISI SELESAI.");
                 document.querySelectorAll('.lyric-item').forEach(el => el.classList.remove('active'));
-            };
-
-            utterance.onerror = () => {
-                updateUIState(false);
-                pushLog("ERR: GAGAL MEMUTAR SUARA", "text-red-500");
             };
 
             utterance.onboundary = (event) => {
@@ -303,16 +424,23 @@
         function drawVisualizer() {
             if (!isSpeaking) return;
             const ctx = ui.osc.getContext('2d');
-            ctx.clearRect(0,0,ui.osc.width, ui.osc.height);
+            const w = ui.osc.width = ui.osc.offsetWidth;
+            const h = ui.osc.height = ui.osc.offsetHeight;
             
-            const barCount = 40;
-            const barWidth = ui.osc.width / barCount;
+            ctx.clearRect(0,0,w,h);
+            const barCount = 50;
+            const barWidth = w / barCount;
             
-            ctx.fillStyle = '#ff003c';
             for(let i=0; i<barCount; i++) {
-                // Random height simulated for native speech
-                const h = Math.random() * ui.osc.height * 0.9;
-                ctx.fillRect(i * barWidth, ui.osc.height, barWidth - 2, -h);
+                const barH = Math.random() * h * 0.8;
+                const gradient = ctx.createLinearGradient(0, h, 0, h - barH);
+                gradient.addColorStop(0, '#440000');
+                gradient.addColorStop(1, '#ff003c');
+                
+                ctx.fillStyle = gradient;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#ff003c';
+                ctx.fillRect(i * barWidth, h, barWidth - 4, -barH);
             }
             
             animationId = requestAnimationFrame(drawVisualizer);
@@ -323,15 +451,20 @@
             if (isSpeaking) {
                 synth.cancel();
                 updateUIState(false);
-                pushLog("> Dihentikan pengguna.");
+                pushLog("TRANSMISI DIPUTUS PAKSA.", "text-yellow-500");
             } else {
                 speak();
             }
         };
 
+        // Initialize clock
         setInterval(() => {
-            document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID', { hour12: false });
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('id-ID', { hour12: false });
         }, 1000);
+
+        // Fix canvas scaling on resize
+        window.onresize = () => clearCanvas();
     </script>
 </body>
 </html>
