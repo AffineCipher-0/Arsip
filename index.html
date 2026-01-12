@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARSIP - MODE DEWA v8.1</title>
+    <title>ARSIP - MODE DEWA v9.0 (Offline Mode)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;500;800&display=swap');
 
         :root {
             --red-primary: #ff003c;
-            --red-glow: rgba(255, 0, 60, 0.4);
             --bg-black: #020202;
         }
 
@@ -24,7 +23,6 @@
             flex-direction: column;
         }
 
-        /* Scanline Overlay */
         body::before {
             content: "";
             position: fixed;
@@ -41,12 +39,6 @@
             border: 1px solid rgba(255, 0, 60, 0.15);
             position: relative;
             backdrop-filter: blur(10px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .cyber-panel:hover {
-            border-color: var(--red-primary);
-            box-shadow: 0 0 20px var(--red-glow);
         }
 
         .corner {
@@ -66,13 +58,6 @@
             letter-spacing: 4px;
             color: #fff;
             text-shadow: 2px 2px var(--red-primary);
-            animation: glitch-anim 5s infinite linear alternate-reverse;
-        }
-
-        @keyframes glitch-anim {
-            0% { clip-path: inset(40% 0 61% 0); transform: skew(0.2deg); }
-            2% { clip-path: inset(92% 0 1% 0); transform: skew(-0.2deg); }
-            4% { clip-path: none; transform: skew(0); }
         }
 
         .lyric-item {
@@ -80,7 +65,6 @@
             padding: 8px 15px;
             transition: all 0.3s ease;
             opacity: 0.2;
-            cursor: pointer;
         }
 
         .lyric-item.active {
@@ -94,427 +78,208 @@
         .console-line::before {
             content: ">> ";
             color: var(--red-primary);
-            font-weight: bold;
         }
 
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
         ::-webkit-scrollbar-thumb { background: var(--red-primary); }
-
-        input[type="range"] {
-            accent-color: var(--red-primary);
-            cursor: pointer;
-        }
-
-        .status-badge {
-            font-size: 9px;
-            padding: 2px 8px;
-            border: 1px solid currentColor;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
     </style>
 </head>
 <body class="p-4 md:p-6">
 
-    <!-- HUD HEADER -->
     <header class="flex justify-between items-end mb-6 border-b border-red-900/30 pb-4">
         <div>
             <div class="flex items-center gap-3 mb-2">
-                <span class="status-badge text-red-500 animate-pulse">ENKRIPSI AKTIF</span>
-                <span class="status-badge text-zinc-500">USER: O5-AUTHORIZED</span>
+                <span class="text-[9px] px-2 py-1 border border-green-500 text-green-500 animate-pulse">OFFLINE_ENGINE_ACTIVE</span>
+                <span id="api-status" class="text-[9px] px-2 py-1 border border-blue-500 text-blue-500">SYSTEM: NATIVE_VOICE</span>
             </div>
-            <h1 class="glitch-text text-xl md:text-3xl">ARSIP<span class="text-zinc-500 text-xs md:text-sm font-light ml-3 italic">v8.1//NEURAL_LINK</span></h1>
+            <h1 class="glitch-text text-xl md:text-3xl">ARSIP<span class="text-zinc-500 text-xs md:text-sm font-light ml-3 italic">v9.0//NO-API</span></h1>
         </div>
-        <div class="text-right font-mono text-[10px] md:text-xs text-zinc-500 hidden sm:block">
-            <div id="sys-loc">LOC: -6.2088 | 106.8456</div>
+        <div class="text-right font-mono text-[10px] text-zinc-500">
             <div id="clock" class="text-red-500 font-bold">00:00:00</div>
         </div>
     </header>
 
-    <!-- MAIN GRID -->
     <main class="grid grid-cols-12 gap-4 flex-grow overflow-hidden">
         
-        <!-- LEFT: INPUT -->
         <section class="col-span-12 lg:col-span-4 flex flex-col gap-4 overflow-hidden">
             <div class="cyber-panel p-5 flex flex-col h-full overflow-hidden">
                 <div class="c-tl corner"></div><div class="c-tr corner"></div>
                 <div class="c-bl corner"></div><div class="c-br corner"></div>
+
+                <label class="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">Input Pesan (Tanpa Limit)</label>
+                <textarea id="textInput" class="flex-grow bg-black/40 border border-zinc-800 p-4 text-sm focus:border-red-600 outline-none text-red-400 font-mono resize-none" placeholder="Ketik sesuatu untuk diucapkan..."></textarea>
                 
-                <label class="text-[10px] uppercase tracking-[0.2em] text-zinc-500 mb-3 flex justify-between">
-                    Input Data Intelijen 
-                    <span class="text-red-900/50">UTF-8 // STABIL</span>
-                </label>
-                <textarea id="textInput" spellcheck="false" 
-                    class="flex-grow bg-black/40 border border-zinc-800 p-4 text-sm focus:border-red-600 outline-none text-red-400 font-mono leading-relaxed resize-none transition-colors" 
-                    placeholder="Masukkan dokumen atau lirik untuk disintesis..."></textarea>
-                
-                <div class="grid grid-cols-2 gap-4 mt-5">
-                    <div class="space-y-2">
-                        <label class="text-[9px] uppercase text-zinc-600 font-bold">Profil Suara</label>
-                        <select id="voiceSelect" class="w-full bg-zinc-900 border border-zinc-800 text-xs p-2 outline-none focus:border-red-600 appearance-none text-zinc-300">
-                            <option value="Charon">The Reaper (Bass)</option>
-                            <option value="Fenrir">Alpha Wolf (Gravel)</option>
-                            <option value="Kore">The Oracle (Female Cold)</option>
-                            <option value="Zephyr">Ghost Agent (Whisper)</option>
-                            <option value="Puck">The Trickster (Light)</option>
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div class="space-y-1">
+                        <label class="text-[9px] uppercase text-zinc-600">Pilih Suara (Sistem)</label>
+                        <select id="voiceSelect" class="w-full bg-zinc-900 border border-zinc-800 text-[10px] p-2 outline-none text-zinc-300">
+                            <!-- Voices will be populated by JS -->
                         </select>
                     </div>
-                    <div class="space-y-2">
-                        <label class="text-[9px] uppercase text-zinc-600 font-bold">Clock Speed: <span id="speedVal" class="text-red-500">1.0x</span></label>
-                        <input type="range" id="speedSlider" min="0.5" max="1.5" step="0.05" value="1.0" class="w-full">
+                    <div class="space-y-1">
+                        <label class="text-[9px] uppercase text-zinc-600">Speed: <span id="speedVal">1.0x</span></label>
+                        <input type="range" id="speedSlider" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full accent-red-600">
                     </div>
                 </div>
 
-                <button id="processBtn" class="mt-5 w-full bg-red-950/10 border border-red-600/50 hover:bg-red-600 hover:text-white py-4 font-black text-xs transition-all uppercase tracking-[0.4em] flex items-center justify-center gap-3 active:scale-[0.98]">
-                    Sintesis Sinyal
+                <button id="processBtn" class="mt-4 w-full bg-red-950/10 border border-red-600/50 hover:bg-red-600 hover:text-white py-3 font-black text-xs transition-all uppercase tracking-widest">
+                    MULAI BICARA
                 </button>
             </div>
         </section>
 
-        <!-- CENTER: MONITOR -->
         <section class="col-span-12 lg:col-span-5 flex flex-col gap-4 overflow-hidden">
             <div class="cyber-panel p-5 flex-grow overflow-hidden flex flex-col">
                 <div class="c-tl corner"></div><div class="c-tr corner"></div>
                 <div class="c-bl corner"></div><div class="c-br corner"></div>
 
-                <div class="flex justify-between items-center mb-4 border-b border-zinc-800 pb-2">
-                    <span class="text-[10px] uppercase font-bold text-red-600 tracking-widest">Neural Link Feed</span>
-                    <div id="neural-status" class="flex gap-1">
-                        <span class="w-2 h-2 bg-red-600 animate-ping rounded-full"></span>
-                    </div>
-                </div>
-
-                <div id="lyricView" class="flex-grow overflow-y-auto space-y-2 pr-2 custom-scrollbar">
-                    <div class="h-full flex flex-col items-center justify-center opacity-20 grayscale text-center p-8">
-                        <div class="w-16 h-16 border-2 border-dashed border-red-600 rounded-full mb-4 flex items-center justify-center animate-spin-slow">
-                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                        </div>
-                        <span class="text-[10px] uppercase tracking-[0.3em]">Menunggu Uplink Sinyal</span>
-                    </div>
-                </div>
-
-                <!-- Global Loader -->
-                <div id="loader" class="absolute inset-0 bg-black/95 hidden z-50 flex items-center justify-center backdrop-blur-sm">
-                    <div class="text-center">
-                        <div class="relative w-24 h-24 mx-auto mb-6">
-                            <div class="absolute inset-0 border-2 border-red-900/20 rounded-full"></div>
-                            <div class="absolute inset-0 border-t-2 border-red-600 rounded-full animate-spin"></div>
-                        </div>
-                        <div class="text-[10px] font-bold text-red-600 tracking-[0.6em] animate-pulse">MEMPROSES ENTIITAS...</div>
+                <div id="lyricView" class="flex-grow overflow-y-auto space-y-2 pr-2">
+                    <div class="h-full flex flex-col items-center justify-center opacity-20 text-center">
+                        <span class="text-[10px] uppercase tracking-widest">Web Speech Engine Ready</span>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- RIGHT: ANALYTICS -->
         <section class="col-span-12 lg:col-span-3 flex flex-col gap-4 overflow-hidden">
-            <div class="cyber-panel p-4 h-1/2 flex flex-col overflow-hidden">
-                <div class="c-tl corner"></div><div class="c-tr corner"></div>
-                <span class="text-[9px] uppercase text-zinc-500 mb-3 flex items-center gap-2">
-                    <span class="w-1 h-1 bg-red-600 rounded-full"></span> Spektrogram
-                </span>
-                <canvas id="osc" class="w-full h-full bg-black/40 rounded border border-zinc-900"></canvas>
+            <div class="cyber-panel p-4 h-1/2 flex flex-col">
+                <canvas id="osc" class="w-full h-full bg-black/40 border border-zinc-900"></canvas>
             </div>
-            
             <div class="cyber-panel p-4 h-1/2 flex flex-col overflow-hidden">
-                <div class="c-bl corner"></div><div class="c-br corner"></div>
-                <span class="text-[9px] uppercase text-zinc-500 mb-3 flex items-center gap-2">
-                    <span class="w-1 h-1 bg-red-600 rounded-full"></span> Terminal Kernel
-                </span>
-                <div id="consoleLog" class="flex-grow text-[9px] font-mono text-zinc-500 space-y-1 overflow-y-auto pr-2">
-                    <div class="console-line">Booting ARSIP-OS...</div>
-                    <div class="console-line">Neural pathway: Ready.</div>
+                <div id="consoleLog" class="flex-grow text-[9px] font-mono text-zinc-500 space-y-1 overflow-y-auto">
+                    <div class="console-line">Aplikasi berjalan dalam mode NATIVE.</div>
+                    <div class="console-line text-green-600">Status: Tidak memerlukan API Key.</div>
                 </div>
-                <button id="downloadBtn" disabled class="mt-4 border-t border-zinc-800 pt-3 text-[10px] text-zinc-600 hover:text-red-500 flex items-center gap-2 transition-all disabled:opacity-30">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    EKSPOR LOG (.WAV)
-                </button>
             </div>
         </section>
     </main>
 
-    <!-- FOOTER CONTROLS -->
     <footer class="mt-6 cyber-panel p-5 flex items-center gap-6">
-        <button id="playBtn" disabled class="group relative p-4 bg-red-600/5 border border-red-600 rounded-full text-red-600 hover:bg-red-600 hover:text-white transition-all disabled:opacity-20 shadow-[0_0_20px_rgba(255,0,60,0.1)] active:scale-90">
-            <svg id="playIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"/>
-            </svg>
+        <button id="stopBtn" class="p-4 border border-red-600 text-red-600 rounded-full hover:bg-red-600 hover:text-white transition-all">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
         </button>
-        
-        <div class="flex-grow">
-            <div class="flex justify-between text-[10px] font-bold mb-3">
-                <span id="timeCur" class="text-red-500 font-mono">00:00.00</span>
-                <div class="flex gap-4 text-zinc-600">
-                    <span id="bitrate">PCM 16-BIT // 24KHZ</span>
-                    <span id="timeDur" class="font-mono">00:00.00</span>
-                </div>
-            </div>
-            <div class="h-1.5 bg-zinc-900/80 relative group cursor-pointer overflow-hidden rounded-full" id="progressContainer">
-                <div id="prog" class="absolute top-0 left-0 h-full bg-red-600 shadow-[0_0_15px_#ff003c] transition-all duration-75" style="width: 0%"></div>
-            </div>
-        </div>
-
-        <div class="hidden md:flex flex-col items-end gap-1 min-w-[80px]">
-            <span class="text-[8px] text-zinc-600 font-bold">GAIN MONITOR</span>
-            <div class="flex gap-0.5" id="gain-bars">
-                <!-- Bars added by JS -->
-            </div>
+        <div class="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">
+            Status: <span id="statusLabel" class="text-red-500">Idle</span>
         </div>
     </footer>
 
     <script>
-        const apiKey = "";
-        let audioCtx, audioBuf, src, analyser, animFrame, audioBlobUrl;
-        let isPlaying = false, startTime = 0, pausedAt = 0, currentLines = [];
+        const synth = window.speechSynthesis;
+        let voices = [];
+        let isSpeaking = false;
 
         const ui = {
             input: document.getElementById('textInput'),
             btnProcess: document.getElementById('processBtn'),
-            btnPlay: document.getElementById('playBtn'),
-            btnDownload: document.getElementById('downloadBtn'),
+            btnStop: document.getElementById('stopBtn'),
             lyricView: document.getElementById('lyricView'),
             console: document.getElementById('consoleLog'),
-            prog: document.getElementById('prog'),
-            loader: document.getElementById('loader'),
             speedSlider: document.getElementById('speedSlider'),
             speedVal: document.getElementById('speedVal'),
             voiceSelect: document.getElementById('voiceSelect'),
-            progCont: document.getElementById('progressContainer'),
-            osc: document.getElementById('osc')
+            osc: document.getElementById('osc'),
+            statusLabel: document.getElementById('statusLabel')
         };
 
-        // Init gain bars
-        const gainBars = document.getElementById('gain-bars');
-        for(let i=0; i<10; i++) {
-            const bar = document.createElement('div');
-            bar.className = `w-1 h-3 ${i < 7 ? 'bg-red-600/30' : 'bg-zinc-800'}`;
-            gainBars.appendChild(bar);
+        // Populate Voice List
+        function populateVoices() {
+            voices = synth.getVoices();
+            ui.voiceSelect.innerHTML = voices
+                .map((v, i) => `<option value="${i}">${v.name} (${v.lang})</option>`)
+                .join('');
         }
 
-        ui.speedSlider.oninput = () => ui.speedVal.innerText = parseFloat(ui.speedSlider.value).toFixed(2) + 'x';
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoices;
+        }
+        populateVoices();
 
-        function pushLog(msg) {
+        ui.speedSlider.oninput = () => ui.speedVal.innerText = ui.speedSlider.value + 'x';
+
+        function pushLog(msg, color = "") {
             const d = document.createElement('div');
-            d.className = "console-line";
+            d.className = "console-line " + color;
             d.innerText = msg;
             ui.console.appendChild(d);
             ui.console.scrollTop = ui.console.scrollHeight;
         }
 
-        async function synthesize() {
+        function speak() {
+            if (synth.speaking) {
+                synth.cancel();
+            }
+
             const text = ui.input.value.trim();
-            if (!text) return pushLog("ERR: INPUT_STREAM_NULL.");
+            if (!text) return pushLog("ERR: INPUT KOSONG");
 
-            stopPlay();
-            ui.loader.classList.remove('hidden');
-            ui.btnProcess.disabled = true;
-            pushLog("> ANALYZING NEURAL PATHWAYS...");
+            const utterance = new SpeechSynthesisUtterance(text);
+            const selectedVoice = voices[ui.voiceSelect.value];
             
-            currentLines = text.split('\n').filter(l => l.trim());
-            ui.lyricView.innerHTML = currentLines.map((t, i) => 
-                `<div class="lyric-item text-xs font-mono" id="line-${i}">
-                    <span class="text-[8px] opacity-40 mr-2">[0X${i.toString(16).toUpperCase().padStart(2,'0')}]</span>${t}
-                 </div>`).join('');
+            utterance.voice = selectedVoice;
+            utterance.rate = parseFloat(ui.speedSlider.value);
+            utterance.pitch = 1.0;
 
-            const selectedVoice = ui.voiceSelect.value;
-            const prompt = `Say in a cinematic, deep, secret agent voice. Slow and heavy: ${text}`;
-            
-            // Implementation of exponential backoff
-            const fetchWithRetry = async (url, options, retries = 5, backoff = 1000) => {
-                try {
-                    const res = await fetch(url, options);
-                    if (!res.ok) throw new Error('API_REJECTED');
-                    return await res.json();
-                } catch (err) {
-                    if (retries <= 0) throw err;
-                    await new Promise(r => setTimeout(r, backoff));
-                    return fetchWithRetry(url, options, retries - 1, backoff * 2);
+            // Handle Lyrics highlighting
+            const lines = text.split('\n').filter(l => l.trim());
+            ui.lyricView.innerHTML = lines.map((t, i) => `<div class="lyric-item text-xs" id="line-${i}">${t}</div>`).join('');
+
+            utterance.onstart = () => {
+                isSpeaking = true;
+                ui.statusLabel.innerText = "Bicara...";
+                pushLog("> Memulai output suara native.");
+                drawVisualizer();
+            };
+
+            utterance.onend = () => {
+                isSpeaking = false;
+                ui.statusLabel.innerText = "Selesai";
+                pushLog("> Output selesai.");
+                document.querySelectorAll('.lyric-item').forEach(el => el.classList.remove('active'));
+            };
+
+            // Estimasi baris mana yang sedang dibaca (Speech API tidak punya marker per baris yang akurat untuk semua browser)
+            utterance.onboundary = (event) => {
+                if (event.name === 'sentence' || event.name === 'word') {
+                    // Logika sederhana: cari baris mana yang mengandung kata saat ini
+                    const charIdx = event.charIndex;
+                    const fullText = ui.input.value;
+                    const beforeText = fullText.substring(0, charIdx);
+                    const lineIdx = beforeText.split('\n').length - 1;
+                    
+                    document.querySelectorAll('.lyric-item').forEach((el, i) => {
+                        el.classList.toggle('active', i === lineIdx);
+                    });
                 }
             };
 
-            try {
-                const data = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }],
-                        generationConfig: {
-                            responseModalities: ["AUDIO"],
-                            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: selectedVoice } } }
-                        }
-                    })
-                });
-
-                const b64 = data.candidates[0].content.parts[0].inlineData.data;
-                const blob = b64ToWav(b64, 24000);
-                
-                if (audioBlobUrl) URL.revokeObjectURL(audioBlobUrl);
-                audioBlobUrl = URL.createObjectURL(blob);
-                
-                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') await audioCtx.resume();
-
-                audioBuf = await audioCtx.decodeAudioData(await blob.arrayBuffer());
-
-                ui.loader.classList.add('hidden');
-                ui.btnProcess.disabled = false;
-                ui.btnPlay.disabled = false;
-                ui.btnDownload.disabled = false;
-                pushLog(`> UPLINK ESTABLISHED. PROFILE: ${selectedVoice.toUpperCase()}`);
-                
-                pausedAt = 0;
-                startPlay();
-            } catch (err) {
-                ui.loader.classList.add('hidden');
-                ui.btnProcess.disabled = false;
-                pushLog("CRITICAL: MAINFRAME_CONNECTION_LOST.");
-                console.error(err);
-            }
+            synth.speak(utterance);
         }
 
-        function b64ToWav(b64, sr) {
-            const bin = atob(b64);
-            const bytes = new Int16Array(bin.length / 2);
-            for (let i = 0; i < bin.length; i += 2) bytes[i/2] = (bin.charCodeAt(i+1) << 8) | bin.charCodeAt(i);
-            const header = new ArrayBuffer(44);
-            const d = new DataView(header);
-            const s = (o, str) => { for(let i=0;i<str.length;i++) d.setUint8(o+i, str.charCodeAt(i)); };
-            s(0, 'RIFF'); d.setUint32(4, 32 + bytes.length*2, true); s(8, 'WAVE');
-            s(12, 'fmt '); d.setUint32(16, 16, true); d.setUint16(20, 1, true);
-            d.setUint16(22, 1, true); d.setUint32(24, sr, true); d.setUint32(28, sr*2, true);
-            d.setUint16(32, 2, true); d.setUint16(34, 16, true); s(36, 'data');
-            d.setUint32(40, bytes.length*2, true);
-            return new Blob([header, bytes], {type: 'audio/wav'});
-        }
-
-        function startPlay() {
-            if (isPlaying || !audioBuf) return;
-            
-            src = audioCtx.createBufferSource();
-            src.buffer = audioBuf;
-            src.playbackRate.value = parseFloat(ui.speedSlider.value);
-            
-            analyser = audioCtx.createAnalyser();
-            analyser.fftSize = 128;
-            src.connect(analyser); analyser.connect(audioCtx.destination);
-            
-            src.start(0, pausedAt);
-            startTime = audioCtx.currentTime - (pausedAt / src.playbackRate.value);
-            isPlaying = true;
-            ui.btnPlay.innerHTML = `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
-            
-            render();
-            pushLog("> PLAYBACK_OVERRIDE: ACTIVE.");
-        }
-
-        function stopPlay() {
-            if (!isPlaying) return;
-            if (src) { try { src.stop(); } catch(e) {} }
-            pausedAt = (audioCtx.currentTime - startTime) * (src ? src.playbackRate.value : 1);
-            isPlaying = false;
-            ui.btnPlay.innerHTML = `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
-            cancelAnimationFrame(animFrame);
-        }
-
-        function render() {
-            if (!isPlaying) return;
-            const now = audioCtx.currentTime;
-            const currentRate = src ? src.playbackRate.value : 1;
-            const dur = audioBuf.duration;
-            const elapsed = (now - startTime) * currentRate;
-            const pct = Math.min((elapsed / dur) * 100, 100);
-
-            ui.prog.style.width = pct + '%';
-            document.getElementById('timeCur').innerText = fmtTime(elapsed);
-            document.getElementById('timeDur').innerText = fmtTime(dur);
-
-            // Sync Lyrics
-            const idx = Math.floor((elapsed / dur) * currentLines.length);
-            document.querySelectorAll('.lyric-item').forEach((el, i) => {
-                const active = i === idx;
-                el.classList.toggle('active', active);
-                if (active) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            });
-
-            // Visualizer
+        // Mock Visualizer for Offline Mode
+        function drawVisualizer() {
+            if (!isSpeaking) return;
             const ctx = ui.osc.getContext('2d');
-            const w = ui.osc.width = ui.osc.clientWidth;
-            const h = ui.osc.height = ui.osc.clientHeight;
-            const dataArray = new Uint8Array(analyser.frequencyBinCount);
-            analyser.getByteFrequencyData(dataArray);
-
-            ctx.clearRect(0, 0, w, h);
-            const barWidth = w / dataArray.length;
+            ctx.clearRect(0,0,ui.osc.width, ui.osc.height);
+            ctx.fillStyle = '#ff003c';
             
-            dataArray.forEach((val, i) => {
-                const barHeight = (val / 255) * h;
-                const gradient = ctx.createLinearGradient(0, h, 0, h - barHeight);
-                gradient.addColorStop(0, '#330000');
-                gradient.addColorStop(1, '#ff003c');
-                ctx.fillStyle = gradient;
-                ctx.fillRect(i * barWidth, h - barHeight, barWidth - 1, barHeight);
-            });
-
-            // Update Volume Bars (Simulated)
-            const avg = dataArray.reduce((a,b) => a+b, 0) / dataArray.length;
-            const activeBars = Math.floor((avg / 128) * 10);
-            Array.from(gainBars.children).forEach((bar, i) => {
-                bar.style.backgroundColor = i < activeBars ? '#ff003c' : '#1a1a1a';
-                bar.style.boxShadow = i < activeBars ? '0 0 5px #ff003c' : 'none';
-            });
-
-            if (elapsed >= dur) {
-                stopPlay();
-                pausedAt = 0;
-                ui.prog.style.width = '0%';
-                pushLog("> TRANSMISSION_COMPLETE.");
-            } else {
-                animFrame = requestAnimationFrame(render);
+            for(let i=0; i<30; i++) {
+                const h = Math.random() * ui.osc.height * 0.8;
+                ctx.fillRect(i * 10, ui.osc.height, 4, -h);
             }
+            
+            if (isSpeaking) requestAnimationFrame(drawVisualizer);
         }
 
-        function fmtTime(s) {
-            const m = Math.floor(Math.max(0, s)/60); 
-            const sc = Math.floor(Math.max(0, s)%60);
-            const ms = Math.floor((s % 1) * 100);
-            return `${m.toString().padStart(2,'0')}:${sc.toString().padStart(2,'0')}.${ms.toString().padStart(2,'0')}`;
-        }
-
-        ui.progCont.onclick = (e) => {
-            if (!audioBuf) return;
-            const rect = ui.progCont.getBoundingClientRect();
-            const pct = (e.clientX - rect.left) / rect.width;
-            pausedAt = pct * audioBuf.duration;
-            if (isPlaying) {
-                stopPlay();
-                startPlay();
-            } else {
-                ui.prog.style.width = (pct * 100) + '%';
-                document.getElementById('timeCur').innerText = fmtTime(pausedAt);
-            }
+        ui.btnProcess.onclick = speak;
+        ui.btnStop.onclick = () => {
+            synth.cancel();
+            isSpeaking = false;
+            ui.statusLabel.innerText = "Diberhentikan";
         };
 
-        ui.btnProcess.onclick = synthesize;
-        ui.btnPlay.onclick = () => isPlaying ? stopPlay() : startPlay();
-        ui.btnDownload.onclick = () => {
-            if (!audioBlobUrl) return;
-            const a = document.createElement('a'); a.href = audioBlobUrl;
-            a.download = `LOG_DEWA_${Date.now()}.wav`; a.click();
-        };
-
-        // System Clock
         setInterval(() => {
-            document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID', { hour12: false }) + " WIB";
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID', { hour12: false });
         }, 1000);
-
-        // Window Resize for Canvas
-        window.onresize = () => {
-            ui.osc.width = ui.osc.clientWidth;
-            ui.osc.height = ui.osc.clientHeight;
-        };
-
-        pushLog("> KERNEL_READY. WAITING_FOR_INPUT.");
     </script>
 </body>
 </html>
