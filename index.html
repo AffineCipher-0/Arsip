@@ -3,284 +3,300 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARSIP - Audio Experience</title>
+    <title>ARSIP - MODE DEWA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;500;800&display=swap');
 
         :root {
-            --red-glow: #ff0000;
-            --terminal-green: #00ff41;
+            --red-primary: #ff003c;
+            --red-glow: rgba(255, 0, 60, 0.4);
+            --bg-black: #020202;
         }
 
         body {
-            background-color: #0a0a0a;
+            background-color: var(--bg-black);
             color: #d1d1d1;
-            font-family: 'Courier Prime', monospace;
-            overflow-x: hidden;
-            background-image: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);
+            font-family: 'JetBrains Mono', monospace;
+            overflow: hidden;
+            height: 100vh;
+            perspective: 1000px;
         }
 
-        .crt-overlay {
+        /* Scanline Pro */
+        body::before {
+            content: "";
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none;
+            inset: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 3px, 3px 100%;
             z-index: 100;
+            pointer-events: none;
         }
+
+        .cyber-panel {
+            background: rgba(5, 5, 5, 0.85);
+            border: 1px solid rgba(255, 0, 60, 0.2);
+            position: relative;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .cyber-panel:hover {
+            border-color: var(--red-primary);
+            box-shadow: 0 0 15px var(--red-glow);
+        }
+
+        /* Decorative Corners */
+        .corner {
+            position: absolute;
+            width: 8px; height: 8px;
+            border: 2px solid var(--red-primary);
+        }
+        .c-tl { top: -2px; left: -2px; border-right: 0; border-bottom: 0; }
+        .c-tr { top: -2px; right: -2px; border-left: 0; border-bottom: 0; }
+        .c-bl { bottom: -2px; left: -2px; border-right: 0; border-top: 0; }
+        .c-br { bottom: -2px; right: -2px; border-left: 0; border-top: 0; }
 
         .glitch-text {
-            text-shadow: 2px 0 var(--red-glow), -2px 0 blue;
-            animation: glitch 2s infinite linear alternate-reverse;
-        }
-
-        @keyframes glitch {
-            0% { text-shadow: 2px 0 red, -2px 0 blue; }
-            50% { text-shadow: -2px 0 red, 2px 0 blue; }
-            100% { text-shadow: 2px 0 red, -2px 0 blue; }
-        }
-
-        .dossier {
-            border: 1px solid #333;
-            background: rgba(20, 20, 20, 0.9);
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            position: relative;
-        }
-
-        .status-bar {
-            background: #1a1a1a;
-            border-bottom: 1px solid #333;
-            padding: 5px 15px;
-            font-size: 0.75rem;
-            display: flex;
-            justify-content: space-between;
-            color: var(--terminal-green);
-        }
-
-        .lyric-line {
-            opacity: 0.3;
-            transition: all 0.5s ease;
-            margin-bottom: 10px;
-        }
-
-        .lyric-active {
-            opacity: 1;
-            color: white;
-            transform: translateX(10px);
-            text-shadow: 0 0 8px rgba(255,255,255,0.5);
-        }
-
-        #visualizer {
-            width: 100%;
-            height: 100px;
-            background: #000;
-        }
-
-        .btn-action {
-            border: 1px solid #444;
-            padding: 10px 20px;
-            transition: all 0.3s;
             text-transform: uppercase;
-            font-weight: bold;
-            letter-spacing: 2px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: #fff;
+            text-shadow: 2px 2px var(--red-primary);
+            animation: glitch-anim 4s infinite linear alternate-reverse;
         }
 
-        .btn-action:hover:not(:disabled) {
-            background: #cc0000;
-            color: white;
-            border-color: #ff0000;
-            box-shadow: 0 0 15px rgba(255,0,0,0.4);
+        @keyframes glitch-anim {
+            0% { clip-path: inset(50% 0 30% 0); transform: skew(0.5deg); }
+            5% { clip-path: inset(10% 0 80% 0); transform: skew(-0.5deg); }
+            10% { clip-path: inset(80% 0 10% 0); transform: skew(0.8deg); }
+            15% { clip-path: none; transform: skew(0); }
         }
 
-        .btn-action:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .lyric-item {
+            border-left: 3px solid #1a1a1a;
+            padding-left: 15px;
+            transition: all 0.4s ease;
+            opacity: 0.3;
         }
 
-        .loading-bar {
-            height: 2px;
-            background: #333;
-            width: 100%;
-            position: relative;
-            overflow: hidden;
+        .lyric-item.active {
+            opacity: 1;
+            border-color: var(--red-primary);
+            background: linear-gradient(90deg, rgba(255, 0, 60, 0.1), transparent);
+            transform: translateX(10px);
+            color: #fff;
         }
 
-        .loading-progress {
-            height: 100%;
-            background: var(--red-glow);
-            width: 0%;
-            transition: width 0.1s linear;
-        }
-        
-        #textInput {
-            background: #050505;
-            color: var(--terminal-green);
-            border: 1px solid #333;
-            font-family: 'JetBrains Mono', monospace;
-            scrollbar-width: thin;
-            scrollbar-color: #333 transparent;
+        .console-line::before {
+            content: "> ";
+            color: var(--red-primary);
         }
 
-        #textInput:focus {
-            outline: none;
-            border-color: var(--red-glow);
-            box-shadow: 0 0 5px rgba(255,0,0,0.2);
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--red-primary); }
+
+        input[type="range"] {
+            accent-color: var(--red-primary);
+        }
+
+        .status-badge {
+            font-size: 8px;
+            padding: 2px 6px;
+            border: 1px solid currentColor;
+            border-radius: 2px;
+            text-transform: uppercase;
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
-    <div class="crt-overlay"></div>
+<body class="flex flex-col p-4 h-screen">
 
-    <div class="max-w-5xl mx-auto dossier rounded-lg overflow-hidden">
-        <div class="status-bar">
-            <span>SECURE CONNECTION: ENCRYPTED</span>
-            <span>SYSTEM: AGENT_PEÑA_v5.0</span>
-            <span id="timestamp"></span>
+    <!-- HUD HEADER -->
+    <header class="flex justify-between items-end mb-4 border-b border-red-900/30 pb-2">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="status-badge text-red-500 animate-pulse">Rahasia</span>
+                <span class="status-badge text-zinc-500">Node: ID-JAK-01</span>
+            </div>
+            <h1 class="glitch-text text-2xl">ARSIP<span class="text-zinc-500 text-sm font-light ml-2">v8.0//MODE_DEWA</span></h1>
         </div>
+        <div class="text-right font-mono text-[10px] text-zinc-500">
+            <div id="sys-time">KOORDINAT: -6.2088, 106.8456</div>
+            <div id="clock">00:00:00</div>
+        </div>
+    </header>
 
-        <div class="p-6">
-            <div class="flex flex-col md:flex-row justify-between items-start mb-6 border-b border-zinc-800 pb-6">
-                <div>
-                    <h1 class="text-3xl font-bold glitch-text mb-2 text-white uppercase">Arsip: Intelligence Deck</h1>
-                    <p class="text-zinc-500 italic">Ketik atau tempel berkas lirik di bawah untuk transmisi suara.</p>
+    <!-- MAIN GRID -->
+    <main class="grid grid-cols-12 gap-4 flex-grow overflow-hidden">
+        
+        <!-- LEFT: COMMAND INPUT -->
+        <section class="col-span-12 lg:col-span-4 flex flex-col gap-4">
+            <div class="cyber-panel p-5 flex flex-col flex-grow">
+                <div class="c-tl corner"></div><div class="c-tr corner"></div>
+                <div class="c-bl corner"></div><div class="c-br corner"></div>
+                
+                <label class="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">Input Data Intelijen</label>
+                <textarea id="textInput" spellcheck="false" class="flex-grow bg-black/50 border border-zinc-800 p-4 text-xs focus:border-red-600 outline-none text-red-500 font-mono leading-relaxed" placeholder="Masukkan dokumen atau lirik untuk didekripsi..."></textarea>
+                
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div class="space-y-2">
+                        <label class="text-[9px] uppercase text-zinc-600">Profil Suara</label>
+                        <select id="voiceSelect" class="w-full bg-zinc-900 border border-zinc-800 text-[10px] p-2 outline-none focus:border-red-600">
+                            <option value="Charon">The Reaper (Bass)</option>
+                            <option value="Fenrir">Alpha Wolf (Gravel)</option>
+                            <option value="Kore">The Oracle (Wanita Dingin)</option>
+                            <option value="Zephyr">Ghost Agent (Bisikan)</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[9px] uppercase text-zinc-600">Kecepatan Sinyal: <span id="speedVal" class="text-red-500">0.9x</span></label>
+                        <input type="range" id="speedSlider" min="0.5" max="1.5" step="0.1" value="0.9" class="w-full mt-2">
+                    </div>
                 </div>
-                <div class="mt-4 md:mt-0 text-right">
-                    <p class="text-xs uppercase text-zinc-600">Ops Status</p>
-                    <p id="system-status" class="text-green-600 font-bold tracking-widest uppercase">Ready to Intercept</p>
+
+                <button id="processBtn" class="mt-4 w-full bg-red-950/20 border border-red-600/50 hover:bg-red-600 hover:text-white py-3 font-black text-xs transition-all uppercase tracking-[0.3em] flex items-center justify-center gap-3 group">
+                    <span class="group-hover:animate-ping inline-block w-2 h-2 bg-red-600 rounded-full"></span>
+                    Sintesis Sinyal
+                </button>
+            </div>
+        </section>
+
+        <!-- CENTER: NEURAL MONITOR -->
+        <section class="col-span-12 lg:col-span-5 flex flex-col gap-4">
+            <div class="cyber-panel p-5 flex-grow overflow-hidden flex flex-col">
+                <div class="c-tl corner"></div><div class="c-tr corner"></div>
+                <div class="c-bl corner"></div><div class="c-br corner"></div>
+
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-[10px] uppercase font-bold text-red-600 tracking-tighter">Umpan Dekripsi</span>
+                    <div id="neural-load" class="flex gap-1">
+                        <div class="w-1 h-3 bg-red-900"></div><div class="w-1 h-3 bg-red-900"></div><div class="w-1 h-3 bg-red-900"></div>
+                    </div>
+                </div>
+
+                <div id="lyricView" class="flex-grow overflow-y-auto space-y-4 pr-2">
+                    <div class="h-full flex flex-col items-center justify-center opacity-20 grayscale">
+                        <svg class="w-12 h-12 mb-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5z"/></svg>
+                        <span class="text-[10px] uppercase tracking-widest">Menunggu Tautan Neural</span>
+                    </div>
+                </div>
+
+                <div id="loader" class="absolute inset-0 bg-black/90 hidden z-50 flex items-center justify-center">
+                    <div class="text-center">
+                        <div class="relative w-20 h-20 mx-auto mb-4">
+                            <div class="absolute inset-0 border-4 border-red-900/30 rounded-full"></div>
+                            <div class="absolute inset-0 border-4 border-t-red-600 rounded-full animate-spin"></div>
+                        </div>
+                        <div class="text-[10px] font-bold text-red-600 tracking-[0.5em] animate-pulse">MENGUNGGAH KE MAINFRAME...</div>
+                    </div>
                 </div>
             </div>
+        </section>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                <!-- Input Area -->
-                <div class="flex flex-col space-y-4">
-                    <div class="flex justify-between items-center">
-                        <label class="text-[10px] uppercase text-zinc-500 font-bold tracking-widest">Input Data Berkas</label>
-                        <span id="charCount" class="text-[10px] text-zinc-600">0 chars</span>
-                    </div>
-                    <textarea id="textInput" class="w-full h-80 p-4 rounded-lg text-sm leading-relaxed resize-none" placeholder="Masukkan lirik di sini... Contoh:&#10;Semua mau mahkota Pablo...&#10;Tapi lupa sejarah itu kejam..."></textarea>
-                    
-                    <button id="processBtn" class="btn-action w-full flex items-center justify-center gap-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                        </svg>
-                        Sintesis Transmisi Suara
-                    </button>
+        <!-- RIGHT: ANALYTICS & LOGS -->
+        <section class="col-span-12 lg:col-span-3 flex flex-col gap-4">
+            <!-- Spectrogram -->
+            <div class="cyber-panel p-4 h-1/2 flex flex-col">
+                <div class="c-tl corner"></div><div class="c-tr corner"></div>
+                <span class="text-[9px] uppercase text-zinc-500 mb-2">Analisis Spektral</span>
+                <canvas id="osc" class="w-full flex-grow bg-black/80"></canvas>
+            </div>
+            <!-- Console -->
+            <div class="cyber-panel p-4 h-1/2 flex flex-col overflow-hidden">
+                <div class="c-bl corner"></div><div class="c-br corner"></div>
+                <span class="text-[9px] uppercase text-zinc-500 mb-2">Terminal Kernel</span>
+                <div id="consoleLog" class="flex-grow text-[9px] font-mono text-zinc-600 space-y-1 overflow-y-auto">
+                    <div class="console-line">Menginisialisasi Mode Dewa...</div>
+                    <div class="console-line">Tingkat Otoritas: O5-OVERRIDE</div>
                 </div>
+                <button id="downloadBtn" disabled class="mt-3 border-t border-zinc-900 pt-2 text-[10px] text-zinc-700 hover:text-red-500 flex items-center gap-2 transition-all">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    EKSPOR LOG TERENKRIPSI (.WAV)
+                </button>
+            </div>
+        </section>
+    </main>
 
-                <!-- Playback & Visualization -->
-                <div class="flex flex-col space-y-4">
-                    <label class="text-[10px] uppercase text-zinc-500 font-bold tracking-widest">Output & Analisis Sinyal</label>
-                    
-                    <div class="bg-zinc-950 p-4 rounded-lg border border-zinc-800 flex-grow relative overflow-hidden">
-                        <div id="lyricContainer" class="h-64 overflow-y-auto pr-2 space-y-4 relative z-10">
-                            <p class="text-zinc-700 italic text-center py-20">Belum ada data transmisi...</p>
-                        </div>
-                        
-                        <!-- Visualizer overlay at bottom -->
-                        <div class="absolute bottom-0 left-0 w-full p-2 bg-black/80 border-t border-zinc-800">
-                            <canvas id="visualizer" class="h-16 w-full"></canvas>
-                        </div>
-
-                        <div id="loadingOverlay" class="absolute inset-0 bg-black/90 flex items-center justify-center hidden z-50">
-                            <div class="text-center">
-                                <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-red-600 mb-4"></div>
-                                <p class="text-xs uppercase tracking-widest text-white">Encoding Audio Signal...</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-zinc-900/50 p-4 rounded border border-zinc-800">
-                        <div class="flex justify-between items-center mb-2">
-                            <div id="playbackControls" class="flex gap-4 items-center">
-                                <button id="playBtn" disabled class="text-zinc-500 hover:text-white transition-colors">
-                                    <svg id="playIcon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M8 5v14l11-7z"/>
-                                    </svg>
-                                </button>
-                                <span id="currentTime" class="text-xs text-zinc-400 font-mono">00:00</span>
-                            </div>
-                            <span id="duration" class="text-xs text-zinc-600 font-mono">00:00</span>
-                        </div>
-                        <div class="loading-bar">
-                            <div id="progressBar" class="loading-progress"></div>
-                        </div>
-                    </div>
-
-                    <div class="text-[10px] font-mono text-zinc-600 bg-black p-2 rounded overflow-hidden">
-                        <div id="console-stream">> System idle. Awaiting input...</div>
-                    </div>
+    <!-- FOOTER CONTROLS -->
+    <footer class="mt-4 cyber-panel p-4 flex items-center gap-6">
+        <button id="playBtn" disabled class="group relative p-5 bg-red-600/10 border border-red-600 rounded-full text-red-600 hover:bg-red-600 hover:text-white transition-all disabled:opacity-20 shadow-[0_0_15px_rgba(255,0,60,0.2)]">
+            <svg id="playIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+            </svg>
+        </button>
+        
+        <div class="flex-grow">
+            <div class="flex justify-between text-[10px] font-bold mb-2">
+                <span id="timeCur" class="text-red-500">00:00.00</span>
+                <div class="flex gap-4 text-zinc-600">
+                    <span id="bitrate">BITRATE: 1411kbps</span>
+                    <span id="timeDur">00:00.00</span>
                 </div>
+            </div>
+            <div class="h-2 bg-zinc-900/50 border border-zinc-800 relative group cursor-pointer" id="progressContainer">
+                <div id="prog" class="absolute top-0 left-0 h-full bg-red-600 shadow-[0_0_20px_#ff003c] transition-all duration-100" style="width: 0%"></div>
             </div>
         </div>
 
-        <div class="bg-zinc-900 p-3 flex justify-between items-center px-6 border-t border-zinc-800">
-            <div class="flex items-center gap-4">
-                <div id="liveIndicator" class="w-2 h-2 rounded-full bg-zinc-700"></div>
-                <span class="text-[10px] uppercase tracking-tighter font-bold">Monitor Sinyal</span>
+        <div class="hidden md:flex flex-col items-end gap-1">
+            <span class="text-[8px] text-zinc-600">VOLUME MASTER</span>
+            <div class="flex gap-1">
+                <div class="w-1 h-3 bg-red-600"></div><div class="w-1 h-3 bg-red-600"></div><div class="w-1 h-3 bg-red-600"></div><div class="w-1 h-3 bg-red-900"></div>
             </div>
-            <div class="text-[10px] text-zinc-500 uppercase">Secure Document Interface v5.0.1</div>
         </div>
-    </div>
+    </footer>
 
     <script>
         const apiKey = "";
-        
-        let audioContext, audioBuffer, sourceNode, analyser, animationId;
-        let isPlaying = false;
-        let startTime = 0;
-        let pausedTime = 0;
-        let currentLyrics = [];
+        let audioCtx, audioBuf, src, analyser, animFrame, audioBlobUrl;
+        let isPlaying = false, startTime = 0, pausedAt = 0, currentLines = [];
 
-        const elements = {
-            textInput: document.getElementById('textInput'),
-            processBtn: document.getElementById('processBtn'),
-            playBtn: document.getElementById('playBtn'),
-            progressBar: document.getElementById('progressBar'),
-            lyricContainer: document.getElementById('lyricContainer'),
-            consoleStream: document.getElementById('console-stream'),
-            loadingOverlay: document.getElementById('loadingOverlay'),
-            systemStatus: document.getElementById('system-status'),
-            liveIndicator: document.getElementById('liveIndicator'),
-            charCount: document.getElementById('charCount')
+        const ui = {
+            input: document.getElementById('textInput'),
+            btnProcess: document.getElementById('processBtn'),
+            btnPlay: document.getElementById('playBtn'),
+            btnDownload: document.getElementById('downloadBtn'),
+            lyricView: document.getElementById('lyricView'),
+            console: document.getElementById('consoleLog'),
+            prog: document.getElementById('prog'),
+            loader: document.getElementById('loader'),
+            speedSlider: document.getElementById('speedSlider'),
+            speedVal: document.getElementById('speedVal'),
+            voiceSelect: document.getElementById('voiceSelect')
         };
 
-        // Update char count
-        elements.textInput.addEventListener('input', (e) => {
-            elements.charCount.innerText = `${e.target.value.length} chars`;
-        });
+        // Perbarui Tampilan Kecepatan
+        ui.speedSlider.oninput = () => ui.speedVal.innerText = ui.speedSlider.value + 'x';
 
-        async function processText() {
-            const text = elements.textInput.value.trim();
-            if (!text) {
-                logConsole("Error: Data input kosong.");
-                return;
-            }
+        function pushLog(msg) {
+            const d = document.createElement('div');
+            d.className = "console-line";
+            d.innerText = msg;
+            ui.console.appendChild(d);
+            ui.console.scrollTop = ui.console.scrollHeight;
+        }
 
-            stopPlayback();
-            elements.loadingOverlay.classList.remove('hidden');
-            elements.systemStatus.innerText = "Processing Audio...";
-            elements.systemStatus.classList.replace('text-green-600', 'text-yellow-600');
-            logConsole("> Synthesizing new voice log...");
+        async function synthesize() {
+            const text = ui.input.value.trim();
+            if (!text) return pushLog("KRITIS: ALIRAN INPUT KOSONG.");
 
-            // Parse lyrics for display
-            currentLyrics = text.split('\n').filter(line => line.trim() !== '').map((line, i) => ({
-                text: line,
-                index: i
-            }));
+            stopPlay();
+            ui.loader.classList.remove('hidden');
+            ui.btnProcess.disabled = true;
+            pushLog("> MENGANALISIS POLA NEURAL...");
+            
+            currentLines = text.split('\n').filter(l => l.trim());
+            ui.lyricView.innerHTML = currentLines.map((t, i) => 
+                `<div class="lyric-item text-xs font-mono" id="line-${i}">
+                    <span class="text-[8px] opacity-40 mr-2">[${String(i).padStart(2,'0')}]</span>${t}
+                 </div>`).join('');
 
-            // Prepare for UI
-            elements.lyricContainer.innerHTML = '';
-            currentLyrics.forEach(l => {
-                const div = document.createElement('div');
-                div.className = 'lyric-line text-sm md:text-base';
-                div.id = `lyric-${l.index}`;
-                div.innerText = l.text;
-                elements.lyricContainer.appendChild(div);
-            });
-
-            // Generate Audio via Gemini TTS
-            const prompt = `Say in a deep, cold, authoritative male secret agent voice, very slow and dramatic: ${text}`;
+            const selectedVoice = ui.voiceSelect.value;
+            const prompt = `Bertindaklah sebagai ${selectedVoice}. Suara agen rahasia yang dalam, bergema, sinematik, dan misterius. Bicara perlahan dengan penekanan berat. Dokumen: ${text}`;
             
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
@@ -290,181 +306,150 @@
                         contents: [{ parts: [{ text: prompt }] }],
                         generationConfig: {
                             responseModalities: ["AUDIO"],
-                            speechConfig: {
-                                voiceConfig: {
-                                    prebuiltVoiceConfig: { voiceName: "Charon" } 
-                                }
-                            }
+                            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: selectedVoice } } }
                         }
                     })
                 });
 
                 const data = await response.json();
-                const pcmData = data.candidates[0].content.parts[0].inlineData.data;
-                const audioBlob = base64ToWav(pcmData, 24000);
-                const arrayBuffer = await audioBlob.arrayBuffer();
+                const b64 = data.candidates[0].content.parts[0].inlineData.data;
+                const blob = b64ToWav(b64, 24000);
                 
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                if (audioBlobUrl) URL.revokeObjectURL(audioBlobUrl);
+                audioBlobUrl = URL.createObjectURL(blob);
                 
-                elements.loadingOverlay.classList.add('hidden');
-                elements.playBtn.disabled = false;
-                elements.playBtn.classList.replace('text-zinc-500', 'text-red-600');
-                elements.systemStatus.innerText = "Interception Ready";
-                elements.systemStatus.classList.replace('text-yellow-600', 'text-green-600');
-                logConsole("> Encryption complete. Sinyal dikunci.");
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                audioBuf = await audioCtx.decodeAudioData(await blob.arrayBuffer());
+
+                ui.loader.classList.add('hidden');
+                ui.btnProcess.disabled = false;
+                ui.btnPlay.disabled = false;
+                ui.btnDownload.disabled = false;
+                pushLog(`> UPLINK STABIL. PROFIL SUARA: ${selectedVoice}`);
                 
-                // Auto play
-                startPlayback();
+                pausedAt = 0;
+                startPlay();
             } catch (err) {
+                ui.loader.classList.add('hidden');
+                ui.btnProcess.disabled = false;
+                pushLog("KESALAHAN KRITIS: SINYAL DITOLAK OLEH MAINFRAME.");
                 console.error(err);
-                logConsole("> CRITICAL ERROR: Sinyal terputus.");
-                elements.loadingOverlay.classList.add('hidden');
             }
         }
 
-        function base64ToWav(base64, sampleRate) {
-            const binaryString = window.atob(base64);
-            const len = binaryString.length;
-            const bytes = new Int16Array(len / 2);
-            for (let i = 0; i < len; i += 2) {
-                bytes[i / 2] = (binaryString.charCodeAt(i + 1) << 8) | binaryString.charCodeAt(i);
-            }
-            const wavHeader = new ArrayBuffer(44);
-            const view = new DataView(wavHeader);
-            const writeString = (offset, string) => {
-                for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i));
-            };
-            writeString(0, 'RIFF');
-            view.setUint32(4, 32 + bytes.length * 2, true);
-            writeString(8, 'WAVE');
-            writeString(12, 'fmt ');
-            view.setUint32(16, 16, true);
-            view.setUint16(20, 1, true);
-            view.setUint16(22, 1, true);
-            view.setUint32(24, sampleRate, true);
-            view.setUint32(28, sampleRate * 2, true);
-            view.setUint16(32, 2, true);
-            view.setUint16(34, 16, true);
-            writeString(36, 'data');
-            view.setUint32(40, bytes.length * 2, true);
-            return new Blob([wavHeader, bytes], { type: 'audio/wav' });
+        function b64ToWav(b64, sr) {
+            const bin = atob(b64);
+            const bytes = new Int16Array(bin.length / 2);
+            for (let i = 0; i < bin.length; i += 2) bytes[i/2] = (bin.charCodeAt(i+1) << 8) | bin.charCodeAt(i);
+            const header = new ArrayBuffer(44);
+            const d = new DataView(header);
+            const s = (o, str) => { for(let i=0;i<str.length;i++) d.setUint8(o+i, str.charCodeAt(i)); };
+            s(0, 'RIFF'); d.setUint32(4, 32 + bytes.length*2, true); s(8, 'WAVE');
+            s(12, 'fmt '); d.setUint32(16, 16, true); d.setUint16(20, 1, true);
+            d.setUint16(22, 1, true); d.setUint32(24, sr, true); d.setUint32(28, sr*2, true);
+            d.setUint16(32, 2, true); d.setUint16(34, 16, true); s(36, 'data');
+            d.setUint32(40, bytes.length*2, true);
+            return new Blob([header, bytes], {type: 'audio/wav'});
         }
 
-        function startPlayback() {
-            if (isPlaying || !audioBuffer) return;
+        function startPlay() {
+            if (isPlaying || !audioBuf) return;
+            src = audioCtx.createBufferSource();
+            src.buffer = audioBuf;
+            src.playbackRate.value = parseFloat(ui.speedSlider.value);
             
-            sourceNode = audioContext.createBufferSource();
-            sourceNode.buffer = audioBuffer;
-            analyser = audioContext.createAnalyser();
+            analyser = audioCtx.createAnalyser();
             analyser.fftSize = 256;
-            sourceNode.connect(analyser);
-            analyser.connect(audioContext.destination);
+            src.connect(analyser); analyser.connect(audioCtx.destination);
             
-            sourceNode.start(0, pausedTime);
-            startTime = audioContext.currentTime - pausedTime;
+            src.start(0, pausedAt);
+            startTime = audioCtx.currentTime - (pausedAt / src.playbackRate.value);
             isPlaying = true;
-            
-            elements.playBtn.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                </svg>`;
-            elements.liveIndicator.classList.replace('bg-zinc-700', 'bg-red-600');
-            elements.liveIndicator.classList.add('animate-pulse');
-
-            updateUI();
-            drawVisualizer();
-            
-            sourceNode.onended = () => {
-                if (audioContext.currentTime - startTime >= audioBuffer.duration) {
-                    stopPlayback();
-                }
-            };
+            ui.btnPlay.innerHTML = `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+            render();
+            pushLog("> OVERRIDE PEMUTARAN AKTIF.");
         }
 
-        function stopPlayback() {
-            if (sourceNode) {
-                try { sourceNode.stop(); } catch(e) {}
-            }
-            isPlaying = false;
-            pausedTime = 0;
-            cancelAnimationFrame(animationId);
-            elements.playBtn.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z"/>
-                </svg>`;
-            elements.liveIndicator.classList.replace('bg-red-600', 'bg-zinc-700');
-            elements.liveIndicator.classList.remove('animate-pulse');
-            elements.progressBar.style.width = '0%';
-        }
-
-        function updateUI() {
+        function stopPlay() {
             if (!isPlaying) return;
-            const elapsed = audioContext.currentTime - startTime;
-            const duration = audioBuffer.duration;
-            elements.progressBar.style.width = `${(elapsed / duration) * 100}%`;
-            document.getElementById('currentTime').innerText = formatTime(elapsed);
-            document.getElementById('duration').innerText = formatTime(duration);
+            if (src) { try { src.stop(); } catch(e) {} }
+            pausedAt = (audioCtx.currentTime - startTime) * (src ? src.playbackRate.value : 1);
+            isPlaying = false;
+            ui.btnPlay.innerHTML = `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+            cancelAnimationFrame(animFrame);
+        }
 
-            // Dynamic lyric syncing based on percentage (since TTS timing varies)
-            const ratio = elapsed / duration;
-            const lyricIdx = Math.floor(ratio * currentLyrics.length);
-            
-            document.querySelectorAll('.lyric-line').forEach((el, i) => {
-                if (i === lyricIdx) {
-                    el.classList.add('lyric-active');
-                    if (i % 2 === 0) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                } else {
-                    el.classList.remove('lyric-active');
-                }
+        function render() {
+            if (!isPlaying) return;
+            const now = audioCtx.currentTime;
+            const currentRate = src ? src.playbackRate.value : 1;
+            const dur = audioBuf.duration / currentRate;
+            const elapsed = now - startTime;
+            const pct = Math.min((elapsed / dur) * 100, 100);
+
+            ui.prog.style.width = pct + '%';
+            document.getElementById('timeCur').innerText = fmtTime(elapsed);
+            document.getElementById('timeDur').innerText = fmtTime(dur);
+
+            // Tautan Neural Dinamis (Lirik)
+            const idx = Math.floor((elapsed / dur) * currentLines.length);
+            document.querySelectorAll('.lyric-item').forEach((el, i) => {
+                const active = i === idx;
+                el.classList.toggle('active', active);
+                if (active) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             });
 
-            animationId = requestAnimationFrame(updateUI);
-        }
-
-        function drawVisualizer() {
-            const canvas = document.getElementById('visualizer');
+            // Visualisasi Neural (Batang)
+            const canvas = document.getElementById('osc');
             const ctx = canvas.getContext('2d');
             const bufferLength = analyser.frequencyBinCount;
             const dataArray = new Uint8Array(bufferLength);
+            analyser.getByteFrequencyData(dataArray);
 
-            function renderFrame() {
-                if (!isPlaying) return;
-                requestAnimationFrame(renderFrame);
-                analyser.getByteFrequencyData(dataArray);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                const barWidth = (canvas.width / bufferLength) * 2;
-                let x = 0;
-                for (let i = 0; i < bufferLength; i++) {
-                    const barHeight = dataArray[i] / 4;
-                    ctx.fillStyle = i % 2 === 0 ? '#ff0000' : '#440000';
-                    ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-                    x += barWidth + 1;
-                }
+            const barWidth = (canvas.width / bufferLength) * 2.5;
+            let barHeight;
+            let x = 0;
+
+            for(let i = 0; i < bufferLength; i++) {
+                barHeight = dataArray[i] / 2;
+                ctx.fillStyle = `rgb(${barHeight + 100}, 0, 60)`;
+                ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                x += barWidth + 1;
             }
-            renderFrame();
+
+            if (elapsed >= dur) {
+                stopPlay();
+                pausedAt = 0;
+                ui.prog.style.width = '0%';
+                pushLog("> TRANSMISI SELESAI.");
+            } else {
+                animFrame = requestAnimationFrame(render);
+            }
         }
 
-        function formatTime(s) {
-            const m = Math.floor(s / 60);
-            const sc = Math.floor(s % 60);
-            return `${m.toString().padStart(2, '0')}:${sc.toString().padStart(2, '0')}`;
+        function fmtTime(s) {
+            const m = Math.floor(Math.max(0, s)/60); 
+            const sc = Math.floor(Math.max(0, s)%60);
+            const ms = Math.floor((s % 1) * 100);
+            return `${m}:${sc < 10 ? '0' : ''}${sc}.${ms < 10 ? '0' : ''}${ms}`;
         }
 
-        function logConsole(msg) {
-            elements.consoleStream.innerText = msg;
-        }
+        ui.btnProcess.onclick = synthesize;
+        ui.btnPlay.onclick = () => isPlaying ? stopPlay() : startPlay();
+        ui.btnDownload.onclick = () => {
+            if (!audioBlobUrl) return;
+            const a = document.createElement('a'); a.href = audioBlobUrl;
+            a.download = "ARSIP_LOG.wav"; a.click();
+        };
 
-        elements.processBtn.addEventListener('click', processText);
-        elements.playBtn.addEventListener('click', () => {
-            if (isPlaying) stopPlayback(); else startPlayback();
-        });
-
-        // Clock
+        // Pembaruan Jam
         setInterval(() => {
-            document.getElementById('timestamp').innerText = new Date().toLocaleString();
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID', { hour12: false }) + " WIB";
         }, 1000);
+
     </script>
 </body>
 </html>
