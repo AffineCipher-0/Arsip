@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARSIP - MODE DEWA v9.0 (Offline Mode)</title>
+    <title>ARSIP - MODE DEWA v9.1 (Dynamic UI)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;500;800&display=swap');
@@ -82,6 +82,12 @@
 
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: var(--red-primary); }
+
+        .btn-glow:hover {
+            box-shadow: 0 0 15px var(--red-primary);
+            background: var(--red-primary);
+            color: white;
+        }
     </style>
 </head>
 <body class="p-4 md:p-6">
@@ -92,7 +98,7 @@
                 <span class="text-[9px] px-2 py-1 border border-green-500 text-green-500 animate-pulse">OFFLINE_ENGINE_ACTIVE</span>
                 <span id="api-status" class="text-[9px] px-2 py-1 border border-blue-500 text-blue-500">SYSTEM: NATIVE_VOICE</span>
             </div>
-            <h1 class="glitch-text text-xl md:text-3xl">ARSIP<span class="text-zinc-500 text-xs md:text-sm font-light ml-3 italic">v9.0//NO-API</span></h1>
+            <h1 class="glitch-text text-xl md:text-3xl">ARSIP<span class="text-zinc-500 text-xs md:text-sm font-light ml-3 italic">v9.1//DYNAMIC</span></h1>
         </div>
         <div class="text-right font-mono text-[10px] text-zinc-500">
             <div id="clock" class="text-red-500 font-bold">00:00:00</div>
@@ -106,14 +112,13 @@
                 <div class="c-tl corner"></div><div class="c-tr corner"></div>
                 <div class="c-bl corner"></div><div class="c-br corner"></div>
 
-                <label class="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">Input Pesan (Tanpa Limit)</label>
-                <textarea id="textInput" class="flex-grow bg-black/40 border border-zinc-800 p-4 text-sm focus:border-red-600 outline-none text-red-400 font-mono resize-none" placeholder="Ketik sesuatu untuk diucapkan..."></textarea>
+                <label class="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">Input Pesan</label>
+                <textarea id="textInput" class="flex-grow bg-black/40 border border-zinc-800 p-4 text-sm focus:border-red-600 outline-none text-red-400 font-mono resize-none" placeholder="Ketik sesuatu..."></textarea>
                 
                 <div class="grid grid-cols-2 gap-4 mt-4">
                     <div class="space-y-1">
-                        <label class="text-[9px] uppercase text-zinc-600">Pilih Suara (Sistem)</label>
+                        <label class="text-[9px] uppercase text-zinc-600">Pilih Suara</label>
                         <select id="voiceSelect" class="w-full bg-zinc-900 border border-zinc-800 text-[10px] p-2 outline-none text-zinc-300">
-                            <!-- Voices will be populated by JS -->
                         </select>
                     </div>
                     <div class="space-y-1">
@@ -123,7 +128,7 @@
                 </div>
 
                 <button id="processBtn" class="mt-4 w-full bg-red-950/10 border border-red-600/50 hover:bg-red-600 hover:text-white py-3 font-black text-xs transition-all uppercase tracking-widest">
-                    MULAI BICARA
+                    MULAI SINTESIS
                 </button>
             </div>
         </section>
@@ -135,7 +140,7 @@
 
                 <div id="lyricView" class="flex-grow overflow-y-auto space-y-2 pr-2">
                     <div class="h-full flex flex-col items-center justify-center opacity-20 text-center">
-                        <span class="text-[10px] uppercase tracking-widest">Web Speech Engine Ready</span>
+                        <span class="text-[10px] uppercase tracking-widest">Siap Menerima Data</span>
                     </div>
                 </div>
             </div>
@@ -147,19 +152,26 @@
             </div>
             <div class="cyber-panel p-4 h-1/2 flex flex-col overflow-hidden">
                 <div id="consoleLog" class="flex-grow text-[9px] font-mono text-zinc-500 space-y-1 overflow-y-auto">
-                    <div class="console-line">Aplikasi berjalan dalam mode NATIVE.</div>
-                    <div class="console-line text-green-600">Status: Tidak memerlukan API Key.</div>
+                    <div class="console-line">Sistem NATIVE aktif.</div>
                 </div>
             </div>
         </section>
     </main>
 
     <footer class="mt-6 cyber-panel p-5 flex items-center gap-6">
-        <button id="stopBtn" class="p-4 border border-red-600 text-red-600 rounded-full hover:bg-red-600 hover:text-white transition-all">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+        <button id="mainActionBtn" class="p-4 border border-red-600 text-red-600 rounded-full btn-glow transition-all">
+            <svg id="btnIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <!-- Play Icon Default -->
+                <path d="M8 5v14l11-7z"/>
+            </svg>
         </button>
-        <div class="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">
-            Status: <span id="statusLabel" class="text-red-500">Idle</span>
+        <div class="flex-grow">
+            <div class="text-[10px] text-zinc-500 uppercase tracking-widest mb-1 font-bold">
+                Status: <span id="statusLabel" class="text-red-500">IDLE</span>
+            </div>
+            <div class="h-1 bg-zinc-900 rounded-full overflow-hidden">
+                <div id="progressBar" class="h-full bg-red-600 w-0 transition-all duration-300"></div>
+            </div>
         </div>
     </footer>
 
@@ -167,21 +179,28 @@
         const synth = window.speechSynthesis;
         let voices = [];
         let isSpeaking = false;
+        let animationId = null;
 
         const ui = {
             input: document.getElementById('textInput'),
             btnProcess: document.getElementById('processBtn'),
-            btnStop: document.getElementById('stopBtn'),
+            mainActionBtn: document.getElementById('mainActionBtn'),
+            btnIcon: document.getElementById('btnIcon'),
             lyricView: document.getElementById('lyricView'),
             console: document.getElementById('consoleLog'),
             speedSlider: document.getElementById('speedSlider'),
             speedVal: document.getElementById('speedVal'),
             voiceSelect: document.getElementById('voiceSelect'),
             osc: document.getElementById('osc'),
-            statusLabel: document.getElementById('statusLabel')
+            statusLabel: document.getElementById('statusLabel'),
+            progressBar: document.getElementById('progressBar')
         };
 
-        // Populate Voice List
+        const ICONS = {
+            play: '<path d="M8 5v14l11-7z"/>',
+            stop: '<path d="M6 6h12v12H6z"/>'
+        };
+
         function populateVoices() {
             voices = synth.getVoices();
             ui.voiceSelect.innerHTML = voices
@@ -204,50 +223,76 @@
             ui.console.scrollTop = ui.console.scrollHeight;
         }
 
+        function updateUIState(speaking) {
+            isSpeaking = speaking;
+            if (speaking) {
+                ui.btnIcon.innerHTML = ICONS.stop;
+                ui.statusLabel.innerText = "SPEAKING";
+                ui.statusLabel.classList.add('animate-pulse');
+                drawVisualizer();
+            } else {
+                ui.btnIcon.innerHTML = ICONS.play;
+                ui.statusLabel.innerText = "IDLE";
+                ui.statusLabel.classList.remove('animate-pulse');
+                ui.progressBar.style.width = '0%';
+                if (animationId) cancelAnimationFrame(animationId);
+                clearCanvas();
+            }
+        }
+
+        function clearCanvas() {
+            const ctx = ui.osc.getContext('2d');
+            ctx.clearRect(0,0,ui.osc.width, ui.osc.height);
+        }
+
         function speak() {
             if (synth.speaking) {
                 synth.cancel();
+                if (isSpeaking) {
+                    updateUIState(false);
+                    return;
+                }
             }
 
             const text = ui.input.value.trim();
             if (!text) return pushLog("ERR: INPUT KOSONG");
 
             const utterance = new SpeechSynthesisUtterance(text);
-            const selectedVoice = voices[ui.voiceSelect.value];
-            
-            utterance.voice = selectedVoice;
+            utterance.voice = voices[ui.voiceSelect.value];
             utterance.rate = parseFloat(ui.speedSlider.value);
-            utterance.pitch = 1.0;
 
-            // Handle Lyrics highlighting
             const lines = text.split('\n').filter(l => l.trim());
             ui.lyricView.innerHTML = lines.map((t, i) => `<div class="lyric-item text-xs" id="line-${i}">${t}</div>`).join('');
 
             utterance.onstart = () => {
-                isSpeaking = true;
-                ui.statusLabel.innerText = "Bicara...";
-                pushLog("> Memulai output suara native.");
-                drawVisualizer();
+                updateUIState(true);
+                pushLog("> Memulai output suara.");
             };
 
             utterance.onend = () => {
-                isSpeaking = false;
-                ui.statusLabel.innerText = "Selesai";
-                pushLog("> Output selesai.");
+                updateUIState(false);
+                pushLog("> Selesai.");
                 document.querySelectorAll('.lyric-item').forEach(el => el.classList.remove('active'));
             };
 
-            // Estimasi baris mana yang sedang dibaca (Speech API tidak punya marker per baris yang akurat untuk semua browser)
+            utterance.onerror = () => {
+                updateUIState(false);
+                pushLog("ERR: GAGAL MEMUTAR SUARA", "text-red-500");
+            };
+
             utterance.onboundary = (event) => {
-                if (event.name === 'sentence' || event.name === 'word') {
-                    // Logika sederhana: cari baris mana yang mengandung kata saat ini
+                if (event.name === 'word') {
                     const charIdx = event.charIndex;
                     const fullText = ui.input.value;
+                    const progress = (charIdx / fullText.length) * 100;
+                    ui.progressBar.style.width = progress + '%';
+
                     const beforeText = fullText.substring(0, charIdx);
                     const lineIdx = beforeText.split('\n').length - 1;
                     
                     document.querySelectorAll('.lyric-item').forEach((el, i) => {
                         el.classList.toggle('active', i === lineIdx);
+                        if(i === lineIdx) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     });
                 }
             };
@@ -255,26 +300,33 @@
             synth.speak(utterance);
         }
 
-        // Mock Visualizer for Offline Mode
         function drawVisualizer() {
             if (!isSpeaking) return;
             const ctx = ui.osc.getContext('2d');
             ctx.clearRect(0,0,ui.osc.width, ui.osc.height);
-            ctx.fillStyle = '#ff003c';
             
-            for(let i=0; i<30; i++) {
-                const h = Math.random() * ui.osc.height * 0.8;
-                ctx.fillRect(i * 10, ui.osc.height, 4, -h);
+            const barCount = 40;
+            const barWidth = ui.osc.width / barCount;
+            
+            ctx.fillStyle = '#ff003c';
+            for(let i=0; i<barCount; i++) {
+                // Random height simulated for native speech
+                const h = Math.random() * ui.osc.height * 0.9;
+                ctx.fillRect(i * barWidth, ui.osc.height, barWidth - 2, -h);
             }
             
-            if (isSpeaking) requestAnimationFrame(drawVisualizer);
+            animationId = requestAnimationFrame(drawVisualizer);
         }
 
         ui.btnProcess.onclick = speak;
-        ui.btnStop.onclick = () => {
-            synth.cancel();
-            isSpeaking = false;
-            ui.statusLabel.innerText = "Diberhentikan";
+        ui.mainActionBtn.onclick = () => {
+            if (isSpeaking) {
+                synth.cancel();
+                updateUIState(false);
+                pushLog("> Dihentikan pengguna.");
+            } else {
+                speak();
+            }
         };
 
         setInterval(() => {
